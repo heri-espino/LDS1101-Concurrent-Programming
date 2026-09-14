@@ -1,0 +1,199 @@
+% Reporte de la Actividad 5
+% Exclusión mutua con Test-and-Set en Java y C
+\documentclass[12pt,oneside]{template/liverpoolthesis}
+\input{template/preamble}
+
+% ---------- Datos de esta actividad ----------
+\title{Actividad 5: Exclusión mutua con Test-and-Set}
+\author{%
+  Andrea Hernandez Huerta\\
+  ID: 175523\\[1em]
+  Heriberto Espino Montelongo\\
+  ID: 175199\\[1em]
+  \text{Profesor:} Dr. Victor Giovanni Morales Murillo}
+\faculty{Universidad de las Américas Puebla (UDLAP)}
+\school{Licenciatura en Ciencia de Datos}
+\degree{Curso: Programación Concurrente}
+\date{Fecha de entrega: 17 de septiembre de 2026}
+\subject{Exclusión mutua con Test-and-Set}
+
+\addto\captionsspanish{\renewcommand{\chaptername}{Ejercicio}}
+\providecommand{\figureautorefname}{Figura}
+\addto\captionsspanish{\renewcommand{\figureautorefname}{Figura}}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+\listoffigures
+\lstlistoflistings
+
+\mainmatter
+
+\chapter{Exclusión mutua con Test-and-Set}
+
+\textbf{Desarrollen un programa en Java que cree un cerrojo utilizando
+\texttt{AtomicBoolean}, inicialmente en \texttt{false}; cree tres hilos que
+compartan el mismo cerrojo y un contador; implemente una operación para
+solicitar acceso a la sección crítica utilizando \texttt{getAndSet(true)};
+mantenga al hilo en espera activa mientras el cerrojo esté ocupado; incremente
+el contador y muestre el identificador y el valor del contador dentro de la
+sección crítica; libere el cerrojo cambiándolo a \texttt{false}; y repita el
+proceso cinco veces por hilo.}
+
+\emph{Entradas.} Tres hilos identificados como $P0$, $P1$ y $P2$, un
+\texttt{AtomicBoolean lockFlag} compartido e inicialmente en \texttt{false},
+un contador compartido inicializado en cero y cinco iteraciones por hilo. La
+prueba de inicio permite que los tres hilos comiencen a solicitar el cerrojo
+de manera concurrente.
+
+\emph{Procesamiento.} La sección de entrada ejecuta
+\texttt{requestCS}. En Java, la expresión \texttt{lockFlag.getAndSet(true)}
+obtiene el valor anterior y cambia el cerrojo a \texttt{true} como una sola
+operación atómica. Si el valor anterior es \texttt{true}, el hilo permanece en
+el ciclo \texttt{while} y realiza espera activa. Si el valor anterior es
+\texttt{false}, el hilo entra a la sección crítica, incrementa el contador,
+muestra su identificador y libera el cerrojo con \texttt{getAndSet(false)}.
+La implementación en C conserva la misma estructura mediante
+\texttt{atomic\_exchange} sobre un \texttt{atomic\_bool}.
+
+\emph{Salidas.} Cada entrada muestra el hilo, la iteración y el valor del
+contador. Como existen tres hilos y cada uno realiza cinco entradas, el valor
+esperado es $3\times5=15$. El valor obtenido en las pruebas fue $15$ tanto en
+Java como en C.
+
+\emph{Estructuras de control utilizadas.} Se emplean tres hilos, un ciclo
+\texttt{for} para repetir las cinco entradas, un ciclo \texttt{while} para la
+espera activa, métodos de solicitud y liberación del cerrojo y una sección
+crítica entre las secciones de entrada y salida. También se utilizan
+operaciones condicionales implícitas en el valor anterior que devuelve
+\texttt{getAndSet} o \texttt{atomic\_exchange}.
+
+\emph{Conceptos.} Test-and-Set es una instrucción capaz de leer una variable y
+modificarla como una única operación atómica. Al convertir la comprobación y
+la modificación del cerrojo en una sola operación, solo un hilo puede
+obtener \texttt{false} cuando el cerrojo está libre. Los demás hilos obtienen
+\texttt{true} y permanecen en espera activa hasta que otro hilo libera el
+cerrojo. La espera activa consume tiempo de procesador, que es la limitación
+principal indicada en el módulo.
+
+\emph{Secciones del programa.}
+\begin{itemize}
+  \item \textbf{Sección de entrada:} el método \texttt{requestCS} ejecuta
+  repetidamente Test-and-Set.
+  \item \textbf{Sección crítica:} el hilo incrementa el contador y muestra
+  el resultado.
+  \item \textbf{Sección de salida:} el método \texttt{releaseCS} cambia el
+  cerrojo a \texttt{false}.
+  \item \textbf{Sección restante:} la repetición de la prueba y la espera de
+  los hilos al finalizar.
+\end{itemize}
+
+\emph{Prueba de escritorio.} La siguiente secuencia representa el caso en
+que $P0$ ya obtuvo el cerrojo y $P1$ intenta entrar simultáneamente. Los
+valores se expresan como booleanos, de acuerdo con el enunciado.
+
+\begin{center}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{c|c|c|c|c|p{4.0cm}}
+Paso & Proceso & \texttt{lockFlag} antes & Operación & \texttt{lockFlag} después & Resultado \\
+\hline
+1 & $P0$ & \texttt{false} & \texttt{TestAndSet(true)} devuelve \texttt{false} & \texttt{true} & $P0$ entra a la sección crítica. \\
+2 & $P1$ & \texttt{true} & \texttt{TestAndSet(true)} devuelve \texttt{true} & \texttt{true} & $P1$ no entra y comienza la espera activa. \\
+3 & $P1$ & \texttt{true} & \texttt{TestAndSet(true)} devuelve \texttt{true} & \texttt{true} & $P1$ continúa esperando. \\
+4 & $P0$ & \texttt{true} & \texttt{TestAndSet(false)} & \texttt{false} & $P0$ termina y libera el cerrojo. \\
+5 & $P1$ & \texttt{false} & \texttt{TestAndSet(true)} devuelve \texttt{false} & \texttt{true} & $P1$ obtiene el cerrojo y entra. \\
+6 & $P1$ & \texttt{true} & \texttt{TestAndSet(false)} & \texttt{false} & $P1$ termina y libera el cerrojo. \\
+\end{tabular}
+}%
+\end{center}
+
+\emph{Evaluación.} El algoritmo garantiza exclusión mutua porque la operación
+que obtiene el valor anterior y cambia el cerrojo es una operación atómica
+desde el punto de vista de los hilos que compiten. Cuando el cerrojo está libre, solo
+un hilo puede recibir \texttt{false}; los demás reciben \texttt{true} y no
+avanzan a la sección crítica. El contador final coincide con el esperado: 15.
+
+\emph{Espera activa.} La espera activa aparece en el ciclo
+\texttt{while} que contiene \texttt{getAndSet(true)} de Java y en el ciclo
+equivalente \texttt{while} que contiene \texttt{testAndSet(true)} de C. En cada
+repetición el hilo vuelve a comprobar el cerrojo y cede brevemente el
+procesador, pero permanece listo para ejecutar. Esta solución evita la entrada
+simultánea, aunque consume CPU mientras existen hilos esperando.
+
+\section{Código fuente en Java}
+
+El siguiente listado conserva la forma del pseudocódigo del módulo: la
+solicitud usa \texttt{getAndSet(true)}, la liberación cambia el cerrojo a
+\texttt{false} y el contador se modifica dentro de la sección crítica.
+
+\lstinputlisting[
+  language=Java,
+  caption={Implementación de Test-and-Set en Java},
+  label={lst:java-test-and-set}
+]{../code/java/Ejercicio01TestAndSet.java}
+
+\section{Código equivalente en C}
+
+En C, \texttt{atomic\_exchange} realiza la misma operación de lectura y
+modificación sobre \texttt{atomic\_bool lockFlag}. La función
+\texttt{testAndSet} conserva el nombre conceptual del pseudocódigo y devuelve
+el valor anterior del cerrojo.
+
+\lstinputlisting[
+  language=C,
+  caption={Implementación equivalente de Test-and-Set en C},
+  label={lst:c-test-and-set}
+]{../code/c/Ejercicio01TestAndSet.c}
+
+\section{Registro de ejecución}
+
+La salida depende del orden en que el planificador concede el procesador a
+cada hilo. Lo importante es que cada entrada ocurre con un valor distinto y
+que el contador termina en 15.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.94\textwidth}
+\begin{lstlisting}[language={},numbers=none]
+prueba de exclusion mutua con test-and-set
+Hilo 2 entra a la seccion critica en la iteracion 1, contador = 1
+Hilo 1 entra a la seccion critica en la iteracion 1, contador = 2
+Hilo 0 entra a la seccion critica en la iteracion 1, contador = 3
+Hilo 1 entra a la seccion critica en la iteracion 2, contador = 4
+Hilo 0 entra a la seccion critica en la iteracion 2, contador = 5
+Hilo 2 entra a la seccion critica en la iteracion 2, contador = 6
+...
+contador esperado: 15
+contador obtenido: 15
+resultado: getAndSet garantiza exclusion mutua con un cerrojo booleano
+\end{lstlisting}
+\end{minipage}
+\caption{Registro de ejecución de la implementación en Java.}
+\label{fig:ejecucion-test-and-set}
+\end{figure}
+
+\chapter{Conclusiones}
+
+La implementación demuestra la función de Test-and-Set dentro de la
+exclusión mutua. El cerrojo booleano inicia libre, cada hilo solicita acceso
+con una única operación que obtiene el valor anterior y escribe
+\texttt{true}, y el hilo que logra entrar libera el cerrojo al salir. Por
+ello, tres hilos que realizan cinco entradas producen exactamente quince
+incrementos del contador.
+
+La prueba de escritorio muestra la diferencia con una solución que primero
+comprueba y después modifica el cerrojo. Con Test-and-Set esas dos acciones se
+realizan como una operación atómica, así que dos hilos no pueden obtener
+\texttt{false} para la misma entrada. Su costo es la espera activa, que
+consume CPU mientras el cerrojo permanece ocupado.
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Referencias}
+\nocite{*}
+\bibliography{template/references}
+
+\end{document}
