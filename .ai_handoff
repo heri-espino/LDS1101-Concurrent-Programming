@@ -1,0 +1,136 @@
+# ai handoff para el repositorio concurrente
+
+## objetivo del repositorio
+
+Este repositorio contiene actividades del curso Programacion Concurrente. Las
+actividades deben desarrollarse tomando como fuente principal el PDF de la
+actividad y el PDF `Modulo 3 Programacion Concurrente` que acompana a cada
+carpeta.
+
+## orden de trabajo obligatorio
+
+Para cada actividad nueva:
+
+1. Leer primero el PDF de instrucciones de la actividad completo
+2. Leer despues el PDF del Modulo 3 completo o las diapositivas relevantes
+3. Identificar los ejercicios o partes, las salidas solicitadas y las
+   preguntas de analisis
+4. Revisar una actividad anterior para conservar la estructura del repositorio
+   y el formato del reporte
+5. Crear y probar primero el codigo normal
+6. Crear despues la version `code ultra commented`
+7. Crear o actualizar el LaTeX al final
+8. Ejecutar los programas y comprobar que las salidas correspondan a las
+   instrucciones
+9. Compilar el PDF y revisar visualmente todas sus paginas
+
+## estructura esperada
+
+Cada actividad nueva debe conservar una estructura como esta:
+
+```text
+NN Nombre de la actividad/
+  Actividad N.pdf
+  Modulo 3 Programacion Concurrente.pdf
+  readme.md
+  code/
+    java/
+  code ultra commented/
+    java/
+  latex/
+    ActividadN_Hernandez_Andrea_Espino_Heriberto.tex
+    figuras/
+    template/
+    build/
+```
+
+Los nombres exactos pueden variar si ya existe una convencion en la carpeta,
+pero no se deben renombrar archivos anteriores sin que el usuario lo pida.
+
+## codigo
+
+- `code/java` contiene el codigo Java comentado de forma normal
+- `code ultra commented/java` contiene el mismo codigo Java explicado casi
+  linea por linea
+- La version ultracomentada debe comentar tambien los imports de las librerias
+- Los comentarios del codigo deben escribirse sin tildes, sin mayuscula inicial
+  y sin punto final, salvo que el usuario cambie esta preferencia
+- Mantener las implementaciones lo mas cercanas posible al pseudocodigo y a
+  los ejemplos de las diapositivas
+- Usar los nombres y conceptos del curso: proceso, hilo, seccion de entrada,
+  seccion critica, seccion de salida, seccion restante, sincronizacion,
+  exclusion mutua, espera activa, espera bloqueada, progreso y espera limitada
+  cuando sean pertinentes
+- No sustituir estructuras del pseudocodigo por representaciones distintas sin
+  justificarlo
+- Ejecutar cada programa con una prueba representativa para que el estudiante
+  pueda tomar la evidencia desde su propia computadora
+- No dejar archivos `.class` generados en las carpetas de codigo si no son
+  necesarios para la entrega
+
+## regla importante sobre lenguajes
+
+Si el usuario indica que el reporte solo debe hablar de Java, el LaTeX debe
+contener unicamente Java aunque existan implementaciones en C o C++ para uso
+interno. No mencionar C, C++ ni otros lenguajes en el texto, las conclusiones,
+las figuras o los captions del reporte en ese caso.
+
+## formato del LaTeX
+
+Conservar el formato de las actividades anteriores:
+
+- portada con autores, IDs, profesor, curso y fecha
+- `frontmatter`, portada, indice general y lista de figuras
+- `mainmatter`
+- un `chapter` por ejercicio o por parte principal de la actividad
+- instruccion del ejercicio en negritas
+- por cada ejercicio: entradas, procesamiento, salidas, estructuras de
+  control utilizadas y conceptos
+- prueba de escritorio cuando la actividad la solicite
+- respuestas explicitas a todas las preguntas de analisis
+- una figura o mas por ejercicio cuando sea necesario
+
+El reporte no debe insertar el codigo fuente como texto literal ni generar
+capturas sinteticas. El LaTeX debe reservar espacios o insertar las fotografias
+que proporcione el estudiante: una fotografia del codigo Java y otra fotografia
+separada de la salida real desde su computadora. Las imagenes deben
+corresponder a la actividad actual; no reutilizar imagenes antiguas que
+muestren otro ejercicio.
+
+## lenguaje de las explicaciones
+
+Usar la terminologia de las diapositivas del Modulo 3. Por ejemplo, preferir
+`exclusion mutua` en lugar de introducir terminologia ajena al curso, y
+explicar `join()` como espera hasta que termine otro hilo y `waitFor()` como
+espera del proceso principal hasta que termine el proceso hijo.
+
+No afirmar que una solucion cumple una propiedad si el pseudocodigo o la
+prueba de escritorio muestran lo contrario. Distinguir siempre entre:
+
+- lo que hace el programa ejecutado
+- el resultado esperado
+- la propiedad teorica del algoritmo
+- una limitacion o condicion del ejemplo
+
+## verificacion del reporte
+
+Antes de entregar:
+
+1. Compilar Java normal y ultracomentado
+2. Ejecutar todos los programas y revisar el orden y los resultados
+3. Compilar desde `latex` con `latexmk` y dejar los auxiliares en `build`
+4. Revisar el log en busca de errores, texto desbordado o referencias rotas
+5. Renderizar el PDF con Poppler y revisar visualmente portada, indices,
+   tablas, capturas, captions y bibliografia
+6. Confirmar que el PDF final este en `latex` con un nombre descriptivo
+
+## estado actual
+
+La Actividad 6 ya fue preparada en:
+
+`06 Sincronizacion de procesos e hilos en java`
+
+Incluye los programas Java de `join()` y `waitFor()`, sus versiones
+ultracomentadas, el reporte con espacios para las fotografias del estudiante y
+el PDF final. Este resultado puede usarse como referencia de formato para las
+siguientes actividades.

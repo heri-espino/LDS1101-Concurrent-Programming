@@ -1,10 +1,10 @@
-% Reporte de la Actividad 4
-% La plantilla compartida conserva el formato de las actividades anteriores
+% Reporte de la Actividad 6
+% Sincronizacion de procesos e hilos en Java
 \documentclass[12pt,oneside]{template/liverpoolthesis}
 \input{template/preamble}
 
 % ---------- Datos de esta actividad ----------
-\title{Actividad 4: Algoritmos de exclusión mutua}
+\title{Actividad 6: Sincronización de procesos e hilos en Java}
 \author{%
   Andrea Hernandez Huerta\\
   ID: 175523\\[1em]
@@ -14,416 +14,206 @@
 \faculty{Universidad de las Américas Puebla (UDLAP)}
 \school{Licenciatura en Ciencia de Datos}
 \degree{Curso: Programación Concurrente}
-\date{Fecha de entrega: 10 de septiembre de 2026}
-\subject{Algoritmos de exclusión mutua}
+\date{Fecha de entrega: 17 de septiembre de 2026}
+\subject{Sincronización de procesos e hilos en Java}
 
-% Inserta la captura correspondiente a cada ejercicio
-\newcounter{actividadimagen}
-\newcommand{\figurareservada}[2]{%
+\addto\captionsspanish{\renewcommand{\chaptername}{Ejercicio}}
+\providecommand{\figureautorefname}{Figura}
+\addto\captionsspanish{\renewcommand{\figureautorefname}{Figura}}
+
+% Inserta una fotografia proporcionada por el estudiante
+\newcommand{\espaciofoto}[4]{%
+  \clearpage
   \begin{figure}[H]
     \centering
-    \stepcounter{actividadimagen}%
-    \includegraphics[width=0.98\textwidth,height=0.38\textheight,keepaspectratio]{figuras/\theactividadimagen.png}
-    \caption{#2}
-    \label{#1}
+    \IfFileExists{figuras/#1}{%
+      \includegraphics[width=0.97\textwidth,height=0.70\textheight,keepaspectratio]{figuras/#1}%
+    }{%
+      \fbox{%
+        \begin{minipage}[c][#4][c]{0.88\textwidth}
+          \centering
+          \textbf{Espacio reservado para la fotografía}\\[1em]
+          #2\\[1em]
+          Agregar el archivo como \texttt{\detokenize{figuras/#1}}
+        \end{minipage}%
+      }%
+    }
+    \caption{#3}
   \end{figure}%
 }
 
 \begin{document}
 
-% Se conserva la estructura de portada, indices y lista de figuras
 \frontmatter
 \maketitle
 \tableofcontents
 \listoffigures
 
-% \begin{abbreviations}
-%   \item[API] \textit{Application Programming Interface}: interfaz de programación
-%   de aplicaciones.
-%   \item[CPU] \textit{Central Processing Unit}: unidad central de procesamiento.
-%   \item[JDK] \textit{Java Development Kit}: conjunto de herramientas para
-%   desarrollar programas en Java.
-% \end{abbreviations}
-
 \mainmatter
 
-\chapter{Solución con una variable cerrojo}
+\chapter{Sincronización de hilos con \texttt{join()}}
 
-\textbf{Implementa en Java una solución con una variable compartida llamada cerrojo. Utiliza al menos dos hilos, un contador compartido dentro de la sección crítica y analiza si la solución cumple exclusión mutua, progreso y espera limitada.}
+\textbf{Desarrollen un programa en Java que implemente tres tareas utilizando
+\texttt{Runnable}: el Hilo 1 debe simular la obtención de datos, el Hilo 2 el
+procesamiento de los datos y el Hilo 3 la generación de un reporte. Utilicen
+\texttt{start()} y \texttt{join()} para garantizar el orden Hilo 1, Hilo 2 y
+Hilo 3. Cada hilo debe mostrar en consola cuándo inicia y cuándo termina su
+tarea.}
 
-\emph{Entradas.} Dos hilos identificados como $P0$ y $P1$, además de tres
-iteraciones por hilo para solicitar acceso a la sección crítica.
+\emph{Entradas.} Tres objetos que implementan la interfaz \texttt{Runnable},
+uno para obtener datos, otro para procesarlos y otro para generar el reporte.
+También se utilizan tres objetos \texttt{Thread} y dos datos compartidos entre
+las tareas consecutivas.
 
-\emph{Procesamiento.} Cada proceso comprueba si la variable \texttt{cerrojo}
-vale cero. Después de la comprobación asigna uno, ejecuta la sección crítica
-incrementando el contador compartido y finalmente vuelve a asignar cero para
-liberar el acceso.
+\emph{Procesamiento.} El proceso principal crea los tres hilos. Inicia el
+Hilo 1 con \texttt{start()} y ejecuta \texttt{join()} para esperar su
+finalización. Después inicia el Hilo 2 y vuelve a esperar con \texttt{join()}.
+Finalmente inicia el Hilo 3 y espera su terminación. De esta manera, la
+finalización de una tarea se convierte en la condición para iniciar la
+siguiente.
 
-\emph{Salidas.} El orden de entrada de los hilos, el contador esperado y el
-contador obtenido. La prueba controlada puede producir seis incrementos
-esperados y solo tres obtenidos porque ambos hilos leen el mismo valor.
+\emph{Salidas.} Cada hilo muestra un mensaje de inicio y otro de terminación.
+El Hilo 1 deja disponibles los datos, el Hilo 2 muestra que fueron procesados
+y el Hilo 3 genera el reporte. El mensaje final confirma que las tres tareas
+terminaron en el orden solicitado.
 
-\emph{Estructuras de control utilizadas.} Dos hilos \texttt{Thread}, una
-sección de entrada con un ciclo \texttt{while}, la sección crítica con un
-ciclo \texttt{for} para repetir la prueba, la sección de salida que libera el
-cerrojo y la sección restante. También se utilizan condicionales \texttt{if} y
-operaciones de asignación sobre variables compartidas.
+\emph{Estructuras de control utilizadas.} Se emplean tres clases que
+implementan \texttt{Runnable}, tres objetos \texttt{Thread}, llamadas a
+\texttt{start()} para iniciar hilos y llamadas a \texttt{join()} para esperar
+su terminación. También se utilizan métodos \texttt{run()}, asignaciones de
+datos compartidos y un bloque \texttt{try-catch} para atender una posible
+interrupción durante la pausa de cada tarea.
 
-\emph{Conceptos.} La sección crítica modifica una variable compartida. La
-comprobación de \texttt{cerrojo} y su modificación son dos operaciones
-separadas; un cambio de contexto entre ambas permite que dos procesos observen
-cero y entren a la sección crítica. El ejemplo muestra una condición de
-carrera.
+\emph{Conceptos.} En Java, \texttt{Runnable} representa la tarea que puede
+ejecutarse en un hilo. \texttt{start()} inicia un nuevo hilo de ejecución y
+provoca que la JVM invoque su método \texttt{run()}. \texttt{join()} hace que
+el hilo que ejecuta esa instrucción espere hasta que termine el hilo indicado.
+En este ejemplo, la espera establece una dependencia: procesar depende de que
+la obtención de datos haya terminado y generar el reporte depende de que el
+procesamiento haya terminado.
 
-\emph{Prueba de escritorio.}
+\emph{Prueba de escritorio.} La siguiente secuencia muestra el orden de
+ejecución establecido por las llamadas a \texttt{start()} y \texttt{join()}.
+
 \begin{center}
 \scriptsize
-\begin{tabular}{c|c|c|p{7.0cm}}
-Paso & Proceso & \texttt{cerrojo} & Acción y resultado \\
+\begin{tabular}{c|p{3.0cm}|p{8.0cm}}
+Paso & Hilo o proceso & Acción y estado \\
 \hline
-1 & $P0$ & 0 & \texttt{while(cerrojo == 1)} es falso; $P0$ puede continuar. \\
-2 & $P0$ & 0 & Cambio de contexto antes de \texttt{cerrojo = 1}; $P0$ es interrumpido. \\
-3 & $P1$ & 0 & \texttt{while(cerrojo == 1)} también es falso; $P1$ puede continuar. \\
-4 & $P1$ & 0 & Ejecuta \texttt{cerrojo = 1} y bloquea el acceso para los siguientes procesos. \\
-5 & $P1$ & 1 & Entra a la sección crítica. \\
-6 & $P1$ & 1 & Cambio de contexto; regresa la ejecución a $P0$. \\
-7 & $P0$ & 1 & Continúa después del \texttt{while}; no vuelve a comprobar el cerrojo. \\
-8 & $P0$ & 1 & Ejecuta \texttt{cerrojo = 1}; el valor permanece en uno. \\
-9 & $P0$ & 1 & Entra también a la sección crítica; se viola la exclusión mutua. \\
+1 & Proceso principal & Crea las tres tareas \texttt{Runnable} y los tres objetos \texttt{Thread}. \\
+2 & Hilo 1 & \texttt{start()} inicia la obtención de datos; el hilo muestra que inicia. \\
+3 & Proceso principal & Ejecuta \texttt{hilo1.join()} y permanece en espera hasta que el Hilo 1 termina. \\
+4 & Hilo 1 & Completa la obtención, guarda los datos y muestra que termina. \\
+5 & Hilo 2 & El proceso principal continúa, ejecuta \texttt{start()} y el Hilo 2 inicia el procesamiento. \\
+6 & Proceso principal & Ejecuta \texttt{hilo2.join()} y espera la terminación del Hilo 2. \\
+7 & Hilo 2 & Procesa los datos y muestra que termina. \\
+8 & Hilo 3 & El proceso principal ejecuta \texttt{start()}; el Hilo 3 genera el reporte. \\
+9 & Proceso principal & \texttt{hilo3.join()} espera la terminación del Hilo 3 y después continúa. \\
 \end{tabular}
 \end{center}
 
-\emph{Evaluación.} No garantiza exclusión mutua porque comprobar y modificar
-\texttt{cerrojo} son dos operaciones separadas. Un cambio de contexto entre
-ambas permite que dos procesos entren a la sección crítica. Tampoco garantiza
-progreso ni espera limitada.
+\emph{¿Qué ocurriría si se eliminaran los \texttt{join()}?} Los tres hilos
+podrían iniciar sin un orden garantizado. El Hilo 2 podría intentar usar los
+datos antes de que el Hilo 1 los obtenga, y el Hilo 3 podría generar el reporte
+antes de que el procesamiento termine. Además, el proceso principal podría
+mostrar el mensaje final antes de que las tareas concluyeran. Se perdería la
+dependencia entre las tareas.
 
-\emph{Explicación.} La variable compartida indica si la sección crítica está
-libre u ocupada, pero el algoritmo no evita que un cambio de contexto ocurra
-entre la comprobación y la modificación. Por eso dos procesos pueden entrar a
-la sección crítica al mismo tiempo y no se cumple la exclusión mutua.
+\espaciofoto{Captura de pantalla 2026-09-16 a la(s) 11.05.01 a.m..png}{Fotografía del código Java y de la salida real del programa ejecutado desde la computadora}{Código Java y salida del programa de sincronización de hilos con \texttt{join()}.}{9cm}
 
-\figurareservada{fig:ejercicio01}{Código fuente y captura de ejecución de la variable cerrojo.}
+\chapter{Sincronización de procesos con \texttt{waitFor()}}
 
-\chapter{Alternancia estricta entre dos procesos}
+\textbf{Desarrollen un segundo ejemplo en Java utilizando \texttt{ProcessBuilder}
+para iniciar un proceso externo. El proceso principal debe crear e iniciar el
+proceso, mostrar que fue iniciado, utilizar \texttt{waitFor()} para esperar su
+finalización, mostrar que terminó y continuar con la ejecución del programa.}
 
-\textbf{Implementa la alternancia estricta entre dos procesos utilizando una variable compartida \texttt{turn}. Cada proceso debe esperar su turno, ejecutar la sección crítica y ceder el turno al otro proceso.}
+\emph{Entradas.} El proceso principal recibe la ruta del ejecutable de Java de
+la JVM actual y la ruta del archivo Java que contiene el proceso hijo. También
+utiliza un objeto \texttt{ProcessBuilder} para describir el proceso externo.
 
-\emph{Entradas.} Dos procesos implementados con hilos \texttt{Thread}, dos
-identificadores y tres iteraciones por proceso.
+\emph{Procesamiento.} El proceso principal crea el \texttt{ProcessBuilder},
+conecta la entrada y salida del proceso hijo con el terminal e inicia el
+proceso mediante \texttt{start()}. Después ejecuta \texttt{waitFor()} y queda
+en espera hasta que el proceso hijo termina. Cuando la espera concluye, el
+programa principal obtiene el código de salida y continúa con un mensaje final.
 
-\emph{Procesamiento.} El proceso $P_i$ espera mientras \texttt{turn} sea
-distinto de su identificador. Cuando obtiene el turno entra a la sección
-crítica, incrementa el contador y, al salir, asigna el turno al proceso
-contrario.
+\emph{Salidas.} El terminal muestra que el proceso principal crea e inicia el
+proceso hijo, que el proceso hijo inicia y termina su tarea, y que el proceso
+principal continúa después de \texttt{waitFor()}. El código de salida igual a
+cero indica que el proceso hijo terminó correctamente.
 
-\emph{Salidas.} La secuencia alternada de entradas y salidas, junto con el
-contador esperado y el contador obtenido.
+\emph{Estructuras de control utilizadas.} Se emplean las clases
+\texttt{ProcessBuilder} y \texttt{Process}, los métodos \texttt{start()},
+\texttt{inheritIO()} y \texttt{waitFor()}, además de un bloque
+\texttt{try-catch} mediante las excepciones declaradas en \texttt{main}.
+El proceso hijo utiliza una pausa para hacer visible el periodo en que el
+proceso principal permanece esperando.
 
-\emph{Estructuras de control utilizadas.} Hilos \texttt{Thread}, sección de
-entrada con ciclo \texttt{while} para esperar, sección crítica con ciclo
-\texttt{for}, sección de salida que cambia \texttt{turn} y sección restante.
-También se utiliza una operación condicional para calcular el siguiente
-proceso.
+\emph{Conceptos.} \texttt{ProcessBuilder} permite crear un proceso externo y
+\texttt{start()} lo inicia. \texttt{waitFor()} hace que el proceso principal
+espere hasta que el proceso hijo termine y devuelve su código de salida. Esta
+es una coordinación entre procesos: el proceso principal y el proceso hijo
+son ejecuciones separadas, por lo que no comparten directamente las variables
+del programa principal.
 
-\emph{Conceptos.} La alternancia estricta impone un orden fijo. Si ambos
-procesos solicitan entrar continuamente, el orden evita que estén juntos en la
-sección crítica. Sin embargo, un proceso puede quedar esperando aunque el otro
-permanezca en su sección restante y no tenga interés en entrar; por eso falla
-el progreso.
+\emph{Prueba de escritorio.} La siguiente secuencia representa el flujo
+solicitado, incluida la espera del proceso principal.
 
-\emph{Prueba de escritorio.}
 \begin{center}
 \scriptsize
-\begin{tabular}{c|c|c|p{7.0cm}}
-Paso & Proceso & \texttt{turn} & Acción y resultado \\
+\begin{tabular}{c|p{3.2cm}|p{7.8cm}}
+Paso & Proceso & Acción y estado \\
 \hline
-1 & $P0$ & 0 & \texttt{turn != 0} es falso; $P0$ puede entrar. \\
-2 & $P0$ & 0 & $P0$ entra a la sección crítica. \\
-3 & $P1$ & 0 & \texttt{turn != 1} es verdadero; $P1$ espera. \\
-4 & $P0$ & 0 & $P0$ termina su sección crítica. \\
-5 & $P0$ & 1 & $P0$ ejecuta \texttt{turn = 1}. \\
-6 & $P1$ & 1 & \texttt{turn != 1} es falso; $P1$ puede entrar. \\
-7 & $P1$ & 1 & $P1$ entra a la sección crítica. \\
-8 & $P0$ & 1 & \texttt{turn != 0} es verdadero; $P0$ espera. \\
-9 & $P1$ & 1 & $P1$ termina su sección crítica. \\
-10 & $P1$ & 0 & $P1$ ejecuta \texttt{turn = 0}. \\
-11 & $P1$ & 0 & $P1$ quiere volver a entrar, pero \texttt{turn != 1} es verdadero. \\
-12 & $P0$ & 0 & $P0$ permanece en la sección restante y no quiere entrar. \\
-13 & $P1$ & 0 & $P1$ continúa esperando aunque la sección crítica está libre. \\
+1 & Proceso principal & Crea el objeto \texttt{ProcessBuilder} con el ejecutable y el archivo Java del proceso hijo. \\
+2 & Proceso principal & Ejecuta \texttt{start()} y muestra que el proceso hijo fue iniciado. \\
+3 & Proceso hijo & Inicia su tarea externa y muestra el mensaje correspondiente. \\
+4 & Proceso principal & Ejecuta \texttt{waitFor()} y permanece en espera bloqueada hasta la finalización del proceso hijo. \\
+5 & Proceso hijo & Termina su tarea y devuelve el código de salida cero. \\
+6 & Proceso principal & \texttt{waitFor()} termina; el proceso principal muestra el código de salida. \\
+7 & Proceso principal & Continúa con la ejecución y muestra el mensaje final. \\
 \end{tabular}
 \end{center}
 
-\emph{Evaluación.} Cumple exclusión mutua porque solo el proceso cuyo
-identificador coincide con \texttt{turn} puede avanzar. No cumple progreso: un
-proceso puede bloquear al otro aunque permanezca en su sección restante. La
-espera es limitada cuando los dos procesos participan de manera continua,
-porque el turno se alterna.
+\emph{¿Qué función cumple \texttt{waitFor()}?} Coordina al proceso principal
+con el proceso hijo. El proceso principal no continúa después de esa llamada
+hasta que el proceso hijo termina; además, la llamada devuelve el código de
+salida del proceso hijo.
 
-\emph{Explicación.} La solución es sencilla y evita la entrada simultánea, pero
-su decisión depende de un proceso que puede no querer entrar. Por eso la
-alternancia estricta es demasiado restrictiva para una solución general.
+\espaciofoto{Captura de pantalla 2026-09-16 a la(s) 11.05.40 a.m..png}{Fotografía del código Java del proceso hijo y de su salida real}{Proceso hijo con \texttt{ProcessBuilder}.}{7cm}
 
-\figurareservada{fig:ejercicio02}{Código fuente y captura de ejecución de la alternancia estricta.}
+\espaciofoto{Captura de pantalla 2026-09-16 a la(s) 11.06.17 a.m..png}{Fotografía del código Java del proceso principal y de la salida real}{Proceso principal con \texttt{waitFor()}.}{9cm}
 
-\chapter{Arreglo de banderas}
+\chapter{Análisis y conclusiones}
 
-\textbf{Implementa una solución con un arreglo de banderas: primero activa la bandera y después comprueba la bandera del otro proceso antes de entrar a la sección crítica.}
+\emph{¿Qué función cumple \texttt{join()}?} \texttt{join()} establece una
+dependencia entre hilos. El hilo que ejecuta la llamada espera la terminación
+del hilo indicado y después puede continuar. En el primer programa permite
+que la obtención de datos termine antes de iniciar el procesamiento, y que el
+procesamiento termine antes de generar el reporte.
 
-\emph{Entradas.} Dos procesos implementados con hilos \texttt{Thread} y dos
-posiciones booleanas, una por proceso.
+\emph{¿Qué diferencia existe entre sincronizar hilos y procesos en los
+ejemplos realizados?} Los hilos pertenecen al mismo programa y se ejecutan
+dentro de la misma JVM. En el primer ejemplo, \texttt{join()} ordena tareas
+realizadas por objetos \texttt{Runnable} y permite que las tareas consecutivas
+utilicen los datos compartidos. En el segundo ejemplo, \texttt{ProcessBuilder}
+inicia otra ejecución de Java; \texttt{waitFor()} coordina su finalización y
+el proceso principal continúa cuando recibe el código de salida.
 
-\emph{Procesamiento.} Cada proceso, en su sección de entrada, asigna
-\texttt{true} a su bandera y luego espera mientras la bandera del otro proceso
-también sea verdadera. La sección crítica incrementa el contador y la sección
-de salida desactiva la bandera.
+\emph{Espera.} En ambos casos el hilo o proceso principal debe esperar un
+evento: la terminación de otro hilo o la terminación de otro proceso. Esta
+espera establece el orden de ejecución requerido y evita que una tarea
+dependiente continúe antes de tiempo.
 
-\emph{Salidas.} La prueba muestra que las dos banderas pueden quedar activas y
-que ningún proceso alcanza la sección crítica. El contador permanece en cero.
-
-\emph{Estructuras de control utilizadas.} Hilos \texttt{Thread}, condicionales
-\texttt{if}, ciclo \texttt{while} para esperar, sección crítica,
-sección de salida y una cuenta regresiva auxiliar para reproducir la situación
-en la que ambos procesos esperan.
-
-\emph{Conceptos.} Las banderas expresan la intención de entrar, pero no existe
-un criterio para decidir quién gana cuando las dos intenciones aparecen al
-mismo tiempo. Ambos procesos pueden quedar en la sección de entrada y esperar
-indefinidamente; por eso no hay progreso.
-
-\emph{Prueba de escritorio.}
-\begin{center}
-\scriptsize
-\begin{tabular}{c|c|c|c|p{5.9cm}}
-Paso & Proceso & \texttt{flag[0]} & \texttt{flag[1]} & Acción y resultado \\
-\hline
-1 & $P0$ & F & F & $P0$ ejecuta \texttt{flag[0] = true}. \\
-2 & $P0$ & T & F & Cambio de contexto antes de comprobar \texttt{flag[1]}. \\
-3 & $P1$ & T & F & $P1$ ejecuta \texttt{flag[1] = true}. \\
-4 & $P1$ & T & T & \texttt{while(flag[0])} es verdadero; $P1$ espera. \\
-5 & $P0$ & T & T & $P0$ continúa después de activar su bandera. \\
-6 & $P0$ & T & T & \texttt{while(flag[1])} es verdadero; $P0$ espera. \\
-7 & -- & T & T & Ambos esperan; ninguno entra a la sección crítica. \\
-\end{tabular}
-\end{center}
-
-\emph{Evaluación.} En el escenario mostrado conserva exclusión mutua porque
-ningún proceso entra, pero no cumple progreso ni espera limitada: ambos pueden
-esperar indefinidamente.
-
-\emph{Explicación.} Activar la bandera antes de comprobar la bandera contraria
-hace que los dos procesos se observen mutuamente como interesados. Ambos
-quedan esperando y ninguno puede entrar a la sección crítica. Falta una
-variable de desempate, como \texttt{turn} en Peterson.
-
-\figurareservada{fig:ejercicio03}{Código fuente y captura de ejecución de las banderas activar-comprobar.}
-
-\chapter{Arreglo de banderas con orden diferente}
-
-\textbf{Implementa el arreglo de banderas con orden diferente: primero comprueba la bandera del otro proceso y después activa su propia bandera. Utiliza una variable compartida dentro de la sección crítica y analiza la entrada simultánea.}
-
-\emph{Entradas.} Dos hilos y dos banderas booleanas compartidas.
-
-\emph{Procesamiento.} Cada proceso observa que la bandera contraria está en
-\texttt{false}, activa su propia bandera y entra sin volver a comprobar la
-bandera del otro proceso. La sección crítica incrementa el contador.
-
-\emph{Salidas.} En la prueba controlada ambos procesos entran a la sección
-crítica. El contador esperado es seis, pero el valor obtenido puede ser tres
-porque ambos pueden leer el mismo valor y escribir el mismo resultado.
-
-\emph{Estructuras de control utilizadas.} Hilos \texttt{Thread}, sección de
-entrada con ciclo \texttt{while}, sección crítica con ciclo \texttt{for},
-sección de salida, condicionales \texttt{if} y una barrera auxiliar para
-alinear las comprobaciones.
-
-\emph{Conceptos.} El algoritmo tiene una condición de carrera entre la
-comprobación y la activación. Un cambio de contexto en ese punto permite que el
-otro proceso realice la misma comprobación, por lo que ambos continúan y entran
-a la sección crítica.
-
-\emph{Prueba de escritorio.}
-\begin{center}
-\scriptsize
-\begin{tabular}{c|c|c|c|p{5.9cm}}
-Paso & Proceso & \texttt{flag[0]} & \texttt{flag[1]} & Acción y resultado \\
-\hline
-1 & $P0$ & F & F & \texttt{while(flag[1])} es falso; $P0$ puede continuar. \\
-2 & $P0$ & F & F & Cambio de contexto antes de activar \texttt{flag[0]}. \\
-3 & $P1$ & F & F & \texttt{while(flag[0])} es falso; $P1$ puede continuar. \\
-4 & $P1$ & F & T & $P1$ ejecuta \texttt{flag[1] = true} y entra. \\
-5 & $P1$ & F & T & $P1$ se encuentra en la sección crítica. \\
-6 & $P1$ & F & T & Cambio de contexto; regresa la ejecución a $P0$. \\
-7 & $P0$ & T & T & $P0$ ejecuta \texttt{flag[0] = true} y continúa después del \texttt{while}. \\
-8 & $P0$ & T & T & $P0$ también entra a la sección crítica; no hay exclusión mutua. \\
-\end{tabular}
-\end{center}
-
-\emph{Evaluación.} No cumple exclusión mutua porque los dos procesos pueden
-entrar a la sección crítica al mismo tiempo. El ejemplo muestra que ambos
-avanzan, pero el contador compartido puede quedar inconsistente.
-
-\emph{Explicación.} El orden de las dos operaciones permite un cambio de
-contexto antes de que el proceso active su bandera. El otro proceso puede hacer
-la misma comprobación y entrar también a la sección crítica; por eso no se
-cumple la exclusión mutua.
-
-\figurareservada{fig:ejercicio04}{Código fuente y captura de ejecución de las banderas comprobar-activar.}
-
-\chapter{Solución de Peterson para dos procesos}
-
-\textbf{Implementa el algoritmo de Peterson para dos procesos. Cada proceso debe utilizar una bandera y una variable \texttt{turn}, ejecutar la sección crítica y demostrar el comportamiento del contador compartido.}
-
-\emph{Entradas.} Dos hilos, dos banderas, una variable \texttt{turn} y tres
-iteraciones por hilo.
-
-\emph{Procesamiento.} El proceso activa su bandera, cede la prioridad al otro
-con \texttt{turn} y espera únicamente si el otro también quiere entrar y
-conserva la prioridad. Al salir desactiva su bandera.
-
-\emph{Salidas.} El orden de acceso y el contador final. Para seis entradas el
-contador esperado y el contador obtenido coinciden.
-
-\emph{Estructuras de control utilizadas.} Hilos \texttt{Thread}, sección de
-entrada con ciclo \texttt{while} para esperar, sección crítica con ciclo
-\texttt{for}, sección de salida que desactiva la bandera, sección restante y
-condicionales para representar las decisiones entre procesos.
-
-\emph{Conceptos.} Peterson combina la intención de entrar, expresada por
-\texttt{flag}, con un desempate mediante \texttt{turn}. Si ambos procesos
-quieren entrar, solo uno puede observar una condición de espera falsa. Cuando
-uno sale, baja su bandera y permite que el otro continúe. Para dos procesos
-garantiza exclusión mutua, progreso y espera limitada.
-
-\emph{Prueba de escritorio.}
-\begin{center}
-\scriptsize
-\begin{tabular}{c|c|c|c|c|p{4.0cm}}
-Paso & Proceso & \texttt{flag[0]} & \texttt{flag[1]} & \texttt{turn} & Acción y resultado \\
-\hline
-1 & $P0$ & T & F & -- & $P0$ activa \texttt{flag[0]}. \\
-2 & $P0$ & T & F & 1 & $P0$ ejecuta \texttt{turn = 1}. \\
-3 & -- & T & F & 1 & Cambio de contexto antes de que $P0$ compruebe la condición. \\
-4 & $P1$ & T & T & 1 & $P1$ activa \texttt{flag[1]}. \\
-5 & $P1$ & T & T & 0 & $P1$ ejecuta \texttt{turn = 0}. \\
-6 & $P1$ & T & T & 0 & $P1$ espera porque \texttt{flag[0]} es verdadera y \texttt{turn == 0}. \\
-7 & $P0$ & T & T & 0 & $P0$ entra: \texttt{turn == 1} es falso. \\
-8 & $P0$ & F & T & 0 & $P0$ sale y ejecuta \texttt{flag[0] = false}. \\
-9 & $P1$ & F & T & 0 & $P1$ entra porque \texttt{flag[0]} ya es falsa. \\
-10 & $P1$ & F & F & 0 & $P1$ sale y ejecuta \texttt{flag[1] = false}. \\
-\end{tabular}
-\end{center}
-
-\emph{Evaluación.} Cumple exclusión mutua, progreso y espera limitada para dos
-procesos, suponiendo que las variables compartidas sean visibles y que los
-procesos continúen ejecutándose.
-
-\emph{Explicación.} La bandera expresa la intención de entrar y \texttt{turn}
-resuelve el empate cuando ambos procesos quieren entrar. Así, uno espera y el
-otro entra; al salir, desactiva su bandera y permite que el otro continúe.
-
-\figurareservada{fig:ejercicio05}{Código fuente y captura de ejecución del algoritmo de Peterson.}
-
-\chapter{Algoritmo de la panadería de Lamport}
-
-\textbf{Implementa el algoritmo de Lamport o de la panadería para $N$ procesos. Utiliza al menos tres hilos, números de turno y una variable compartida dentro de la sección crítica.}
-
-\emph{Entradas.} Tres hilos identificados como $P0$, $P1$ y $P2$, tres
-iteraciones por hilo y los arreglos compartidos de selección y números.
-
-\emph{Procesamiento.} Cada proceso anuncia que está eligiendo turno, toma un
-número mayor que los existentes y espera a los procesos con un turno menor. En
-caso de empate se utiliza el identificador menor. Al salir de la sección
-crítica, coloca su número en cero.
-
-\emph{Salidas.} Los turnos asignados, el orden de entrada y el contador final.
-Para nueve entradas el contador esperado y el contador obtenido coinciden.
-
-\emph{Estructuras de control utilizadas.} Un arreglo de hilos, una sección de
-entrada con ciclos \texttt{for} para buscar el número mayor y comparar
-procesos, ciclos \texttt{while} para esperar, la sección crítica, la
-sección de salida que coloca el número en cero y condicionales para resolver
-empates.
-
-\emph{Conceptos.} La panadería de Lamport simula una fila de panadería. El par
-formado por \texttt{numero[i]} e $i$ establece un orden total, equivalente a
-comparar primero el número y después el identificador del proceso. Los
-arreglos compartidos del programa representan los procesos que están eligiendo
-turno y los números asignados.
-
-\emph{Prueba de escritorio.}
-\begin{center}
-\small
-\begin{tabular}{c|c|c|p{7cm}}
-Paso & Proceso & Turnos & Acción y resultado \\
-\hline
-1 & $P0$ & (1,0,0) & Toma el primer turno \\
-2 & $P1$ & (1,2,0) & Toma un turno posterior \\
-3 & $P2$ & (1,2,3) & Toma el turno siguiente \\
-4 & $P0$ & (1,2,3) & Entra por tener el menor turno \\
-5 & $P1$ & (0,2,3) & Entra después de que $P0$ libera \\
-6 & $P2$ & (0,0,3) & Entra al final de la fila \\
-\end{tabular}
-\end{center}
-
-\emph{Evaluación.} Cumple exclusión mutua, progreso y espera limitada para N
-procesos, siempre que las variables compartidas sean visibles y cada proceso
-libere su número al salir.
-
-\emph{Explicación.} El número de turno ordena las solicitudes sin depender de
-un único proceso. Cada proceso consulta los números de los demás antes de
-entrar a la sección crítica y coloca su número en cero al salir.
-
-\figurareservada{fig:ejercicio06}{Código fuente y captura de ejecución del algoritmo de la panadería de Lamport.}
-
-\chapter{Tabla comparativa y conclusiones}
-
-La tabla resume el comportamiento observado y las propiedades teóricas de las
-seis estrategias. La columna de procesos muestra la configuración utilizada en
-los programas entregados. En cada caso se distinguen la sección de entrada, la
-sección crítica, la sección de salida y la sección restante.
-
-\begin{table}[H]
-\centering
-\scriptsize
-\caption{Comparación de algoritmos de exclusión mutua}
-\renewcommand{\arraystretch}{1.2}
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{p{2.5cm} c p{1.15cm} p{1.0cm} p{1.1cm} p{4.4cm}}
-\toprule
-\textbf{Algoritmo} & \textbf{Proc.} & \textbf{Excl. mutua} & \textbf{Prog.} & \shortstack{\textbf{Espera}\\\textbf{limitada}} & \textbf{Problema principal} \\
-\midrule
-Variable cerrojo & 2 & No & No$^1$ & No & Condición de carrera entre comprobar y asignar \\
-Alternancia estricta & 2 & Sí & No & Sí$^2$ & Depende de un proceso que puede no querer entrar \\
-Arreglo de banderas & 2 & Sí$^3$ & No & No & Ambas banderas pueden quedar activas \\
-Banderas con orden diferente & 2 & No & Sí$^4$ & No & Condición de carrera antes de activar \\
-Peterson & 2 & Sí & Sí & Sí & Está diseñado para dos procesos \\
-Lamport/panadería & $N$ (3) & Sí & Sí & Sí & Más procesos y números de turno \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\small
-\begin{enumerate}
-  \item La variable no es suficiente para garantizar progreso; además, el proceso puede ser adelantado repetidamente.
-  \item Cuando los dos procesos solicitan acceso de forma continua; si uno no participa, puede bloquearse el otro.
-  \item En la ejecución simultánea ninguno entra, por lo que no hay violación observada, pero no existe progreso.
-  \item La variante permite que ambos avancen, pero no garantiza exclusión mutua.
-\end{enumerate}
-
-\emph{¿Cuál es el algoritmo más adecuado?} Para exactamente dos procesos, Peterson
-es la opción más clara porque combina banderas y turno con una prueba sencilla
-de exclusión mutua, progreso y espera limitada. Para un número arbitrario de
-procesos, la panadería de Lamport es más adecuada porque generaliza el orden de
-entrada mediante números de turno.
-
-\emph{¿Qué limitaciones se observan?} En los ejemplos, los procesos pueden
-permanecer en un ciclo \texttt{while} mientras esperan. El cerrojo simple y
-las dos variantes de banderas muestran que cambiar el orden de lectura y
-escritura puede producir una condición de carrera o pérdida de actualizaciones.
-Las banderas pueden dejar a ambos procesos esperando. Peterson está limitado a
-dos procesos y la panadería de Lamport necesita más memoria y comparaciones a
-medida que aumenta el número de procesos.
+\emph{Conclusión.} Los dos programas muestran que la sincronización coordina
+la ejecución de procesos e hilos para que las operaciones ocurran en el orden
+adecuado. \texttt{start()} permite iniciar una nueva ejecución, mientras que
+\texttt{join()} y \texttt{waitFor()} establecen el punto en el que la
+ejecución debe esperar. En el primer programa, eliminar \texttt{join()} haría
+que el orden de las tareas dependiera del planificador y podría producir un
+reporte sin datos procesados. En el segundo programa, eliminar \texttt{waitFor()}
+permitiría que el proceso principal continuara antes de que terminara el
+proceso hijo.
 
 \cleardoublepage
 \phantomsection
