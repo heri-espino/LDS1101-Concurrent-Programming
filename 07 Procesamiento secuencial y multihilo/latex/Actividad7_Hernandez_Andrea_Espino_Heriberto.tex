@@ -1,0 +1,251 @@
+% Reporte de la Actividad 7
+% Procesamiento secuencial y multihilo
+\documentclass[12pt,oneside]{template/liverpoolthesis}
+\input{template/preamble}
+
+% ---------- Datos de esta actividad ----------
+\title{Actividad 7: Procesamiento secuencial y multihilo}
+\author{%
+  Andrea Hernandez Huerta\\
+  ID: 175523\\[1em]
+  Heriberto Espino Montelongo\\
+  ID: 175199\\[1em]
+  \text{Profesor:} Dr. Victor Giovanni Morales Murillo}
+\faculty{Universidad de las Américas Puebla (UDLAP)}
+\school{Licenciatura en Ciencia de Datos}
+\degree{Curso: Programación Concurrente}
+\date{Fecha de entrega: 24 de septiembre de 2026}
+\subject{Comparación de procesamiento secuencial y multihilo}
+
+\addto\captionsspanish{\renewcommand{\chaptername}{Ejercicio}}
+\providecommand{\figureautorefname}{Figura}
+\addto\captionsspanish{\renewcommand{\figureautorefname}{Figura}}
+
+% Inserta una fotografía proporcionada por el estudiante o deja un espacio
+\newcommand{\espaciofoto}[4]{%
+  \clearpage
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{figuras/#1}{%
+      \includegraphics[width=0.97\textwidth,height=0.70\textheight,keepaspectratio]{figuras/#1}%
+    }{%
+      \fbox{%
+        \begin{minipage}[c][#4][c]{0.88\textwidth}
+          \centering
+          \textbf{Espacio reservado para la fotografía}\\[1em]
+          #2\\[1em]
+          Agregar el archivo como \texttt{\detokenize{figuras/#1}}
+        \end{minipage}%
+      }%
+    }
+    \caption{#3}
+  \end{figure}%
+}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+
+\chapter{Comparación secuencial y multihilo}
+
+\textbf{Enunciado.} Comparar el rendimiento de una implementación secuencial y
+una multihilo según el tamaño y la complejidad del problema. Se generan
+arreglos de enteros entre 1 y 100 con 40, 100,000, 1,000,000 y 10,000,000 de
+elementos. Para cada arreglo se realizan una suma sencilla y una operación de
+mayor procesamiento,
+\[
+  \sqrt{x}\,\log(x+1),
+\]
+tanto de manera secuencial como con cuatro hilos. Cada implementación se
+ejecuta diez veces y se registra el tiempo promedio sin incluir la generación
+del arreglo.
+
+\section{Objetivo}
+
+El objetivo es observar cómo influyen dos variables sobre el tiempo de
+ejecución: el número de elementos del arreglo y la cantidad de cómputo
+realizada por elemento. La comparación permite identificar cuándo el costo de
+crear, iniciar, planificar y sincronizar cuatro hilos puede ser compensado por
+el trabajo que se ejecuta de forma concurrente.
+
+\section{Entradas}
+
+El programa utiliza cuatro tamaños de arreglo:
+\[
+40,\qquad 100\,000,\qquad 1\,000\,000,\qquad 10\,000\,000.
+\]
+Cada posición contiene un entero pseudoaleatorio entre 1 y 100. El mismo
+arreglo se utiliza para comparar las dos implementaciones de una operación, de
+manera que ambas reciben exactamente los mismos datos.
+
+\section{Procesamiento}
+
+Para la prueba de suma sencilla, la versión secuencial recorre el arreglo
+completo con un solo flujo y acumula los valores en una variable
+\texttt{long}. La versión multihilo divide los índices del arreglo en cuatro
+intervalos. Cada hilo calcula un subtotal y lo guarda en una posición exclusiva
+de un arreglo de resultados parciales.
+
+Para la prueba de mayor procesamiento se utiliza, para cada elemento \(x\),
+\[
+f(x)=\sqrt{x}\log(x+1).
+\]
+En Java se implementa mediante
+\texttt{Math.sqrt(valor) * Math.log(valor + 1.0)}. La versión secuencial
+acumula todos los valores en un único flujo; la versión multihilo aplica la
+misma división en cuatro intervalos y calcula cuatro subtotales.
+
+Los cuatro hilos se crean primero y se inician mediante \texttt{start()}.
+Posteriormente, el hilo principal ejecuta \texttt{join()} sobre cada uno.
+Solo después de que los cuatro han terminado se combinan sus resultados
+parciales.
+
+\section{Estructuras de control utilizadas}
+
+Se emplean ciclos \texttt{for} para generar los datos, recorrer los arreglos y
+repetir cada medición diez veces. La versión multihilo utiliza un arreglo de
+cuatro objetos \texttt{Thread}. Cada hilo recibe una tarea mediante una
+expresión lambda y procesa el intervalo
+\[
+\left[
+\frac{i n}{4},
+\frac{(i+1)n}{4}
+\right),
+\]
+donde \(i\in\{0,1,2,3\}\) es el identificador del hilo y \(n\) es el tamaño del
+arreglo.
+
+Cada hilo escribe únicamente en su propia posición del arreglo de resultados
+parciales. Por ello no se requiere un cerrojo para los subtotales. Las llamadas
+a \texttt{join()} garantizan que todos los resultados parciales estén
+disponibles antes de combinarlos.
+
+\section{Medición del tiempo}
+
+La generación del arreglo se realiza antes de iniciar cualquier cronómetro, tal
+como solicita la actividad. Cada implementación se ejecuta diez veces. Para
+cada repetición se utiliza \texttt{System.nanoTime()} y se acumula la duración.
+El promedio en milisegundos se calcula como
+\[
+\bar t =
+\frac{\sum_{k=1}^{10} t_k}{10\cdot 10^6}.
+\]
+
+El tiempo de la versión multihilo incluye la creación, el inicio y la
+sincronización de los hilos, pues esas operaciones forman parte de la
+implementación que se desea comparar.
+
+\section{Comprobación de resultados}
+
+Para la suma sencilla, los resultados secuencial y multihilo deben coincidir
+exactamente. Para la operación con \texttt{double}, el orden de las sumas
+cambia entre ambas implementaciones y puede generar diferencias mínimas de
+redondeo. Por ello se comprueba equivalencia con una tolerancia relativa de
+\(10^{-10}\). Si alguna comprobación falla, el programa lanza una excepción en
+lugar de presentar tiempos de implementaciones que producen resultados
+distintos.
+
+\section{Resultados}
+
+Los tiempos son dependientes del procesador, de la JVM y de la carga del
+sistema. La siguiente tabla debe completarse con los promedios obtenidos al
+ejecutar el programa en la computadora utilizada para la evidencia.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Comparación de tiempos promedio entre las implementaciones.}
+\label{tab:resultados}
+\begin{tabular}{r l c c c}
+\hline
+\textbf{Tamaño} & \textbf{Operación} &
+\textbf{Secuencial (ms)} & \textbf{Multihilo (ms)} & \textbf{Más rápido}\\
+\hline
+40 & Suma & --- & --- & ---\\
+40 & Mayor procesamiento & --- & --- & ---\\
+100,000 & Suma & --- & --- & ---\\
+100,000 & Mayor procesamiento & --- & --- & ---\\
+1,000,000 & Suma & --- & --- & ---\\
+1,000,000 & Mayor procesamiento & --- & --- & ---\\
+10,000,000 & Suma & --- & --- & ---\\
+10,000,000 & Mayor procesamiento & --- & --- & ---\\
+\hline
+\end{tabular}
+\end{table}
+
+\espaciofoto{codigo.png}
+{Fotografía del código Java de la Actividad 7}
+{Código de la comparación secuencial y multihilo.}
+{9cm}
+
+\espaciofoto{salida.png}
+{Fotografía de la ejecución completa y de la tabla de tiempos obtenida en la computadora del estudiante}
+{Salida real del programa con los tiempos promedio.}
+{9cm}
+
+\chapter{Análisis y conclusiones}
+
+\section{¿En qué casos fue más rápida cada implementación?}
+
+La respuesta definitiva debe basarse en los valores medidos de la
+\autoref{tab:resultados}. Para arreglos pequeños, el trabajo útil puede ser tan
+breve que el costo de crear, iniciar y sincronizar cuatro hilos sea comparable
+o incluso mayor que el propio cálculo. En ese caso es razonable observar un
+menor tiempo en la implementación secuencial.
+
+Al crecer el arreglo, especialmente en la operación
+\(\sqrt{x}\log(x+1)\), existe más cómputo independiente que repartir entre los
+cuatro hilos. Si la computadora dispone de capacidad de ejecución paralela,
+la versión multihilo puede entonces reducir el tiempo promedio. Esta
+interpretación debe contrastarse con los datos obtenidos en la ejecución
+local.
+
+\section{¿Cómo influyeron el tamaño del arreglo y la complejidad de la operación?}
+
+Aumentar el tamaño incrementa el número de elementos que deben procesarse.
+Además, la suma sencilla realiza una operación aritmética muy económica,
+mientras que la segunda prueba evalúa una raíz cuadrada y un logaritmo para
+cada elemento. Por tanto, el segundo caso asigna más trabajo computacional a
+cada sección del arreglo.
+
+Cuando el trabajo por elemento es pequeño, los costos asociados con los hilos
+representan una fracción importante del tiempo total. Al incrementar el tamaño
+o la complejidad, esa fracción puede disminuir porque cada hilo permanece más
+tiempo realizando trabajo útil.
+
+\section{¿Por qué utilizar varios hilos no siempre mejora el rendimiento?}
+
+Crear hilos y coordinarlos tiene un costo. Además, el sistema operativo debe
+planificar su ejecución y el procesador dispone de una cantidad finita de
+núcleos y recursos compartidos. Si la tarea es demasiado pequeña, el trabajo
+adicional de administrar los hilos puede superar el tiempo que se pretende
+ahorrar. Por ello, el uso de varios hilos no implica por sí solo una mejora de
+rendimiento; el beneficio depende del tamaño del problema, de la complejidad
+del cálculo y del hardware donde se ejecuta.
+
+\section{Conclusión}
+
+La actividad compara dos formas de ejecutar exactamente el mismo cálculo. La
+versión secuencial evita el costo de coordinación, mientras que la versión
+multihilo divide el trabajo en cuatro secciones independientes y sincroniza su
+terminación mediante \texttt{join()}. La comparación correcta requiere medir
+ambas alternativas sobre los mismos datos, excluir la generación del arreglo
+del cronómetro y verificar que los resultados numéricos sean equivalentes.
+
+Los datos de la \autoref{tab:resultados} permiten determinar experimentalmente
+en qué punto el trabajo disponible es suficiente para compensar el costo de
+usar cuatro hilos.
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Referencias}
+\nocite{*}
+\bibliography{template/references}
+
+\end{document}
