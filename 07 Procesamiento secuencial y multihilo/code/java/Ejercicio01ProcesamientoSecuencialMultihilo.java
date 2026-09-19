@@ -213,8 +213,5 @@ public class Ejercicio01ProcesamientoSecuencialMultihilo {
             imprimirFila(tamano, "Mayor procesamiento",
                     promedioMayorSecuencial, promedioMayorMultihilo);
         }
-
-        System.out.println(
-                "Verificacion completada: ambas versiones produjeron resultados equivalentes.");
     }
 }

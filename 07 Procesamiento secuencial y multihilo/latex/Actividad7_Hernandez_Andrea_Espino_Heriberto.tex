@@ -54,7 +54,7 @@
 
 \chapter{Comparación secuencial y multihilo}
 
-\textbf{Enunciado.} Comparar el rendimiento de una implementación secuencial y
+\textbf{Comparar el rendimiento de una implementación secuencial y
 una multihilo según el tamaño y la complejidad del problema. Se generan
 arreglos de enteros entre 1 y 100 con 40, 100,000, 1,000,000 y 10,000,000 de
 elementos. Para cada arreglo se realizan una suma sencilla y una operación de
@@ -64,7 +64,7 @@ mayor procesamiento,
 \]
 tanto de manera secuencial como con cuatro hilos. Cada implementación se
 ejecuta diez veces y se registra el tiempo promedio sin incluir la generación
-del arreglo.
+del arreglo.}
 
 \section{Objetivo}
 
@@ -154,37 +154,55 @@ distintos.
 \section{Resultados}
 
 Los tiempos son dependientes del procesador, de la JVM y de la carga del
-sistema. La siguiente tabla debe completarse con los promedios obtenidos al
-ejecutar el programa en la computadora utilizada para la evidencia.
+sistema. El Cuadro~\ref{tab:resultados} presenta los promedios obtenidos en la
+última ejecución visible en la evidencia de la computadora utilizada. Cada
+valor corresponde al promedio de diez repeticiones del programa.
 
 \begin{table}[H]
 \centering
 \small
 \caption{Comparación de tiempos promedio entre las implementaciones.}
 \label{tab:resultados}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{r l c c c}
 \hline
 \textbf{Tamaño} & \textbf{Operación} &
 \textbf{Secuencial (ms)} & \textbf{Multihilo (ms)} & \textbf{Más rápido}\\
 \hline
-40 & Suma & --- & --- & ---\\
-40 & Mayor procesamiento & --- & --- & ---\\
-100,000 & Suma & --- & --- & ---\\
-100,000 & Mayor procesamiento & --- & --- & ---\\
-1,000,000 & Suma & --- & --- & ---\\
-1,000,000 & Mayor procesamiento & --- & --- & ---\\
-10,000,000 & Suma & --- & --- & ---\\
-10,000,000 & Mayor procesamiento & --- & --- & ---\\
+40 & Suma & 0.000 & 0.256 & Secuencial\\
+40 & Mayor procesamiento & 0.011 & 0.247 & Secuencial\\
+100,000 & Suma & 0.217 & 0.375 & Secuencial\\
+100,000 & Mayor procesamiento & 0.642 & 0.930 & Secuencial\\
+1,000,000 & Suma & 0.292 & 0.289 & Multihilo\\
+1,000,000 & Mayor procesamiento & 5.003 & 2.192 & Multihilo\\
+10,000,000 & Suma & 2.518 & 1.065 & Multihilo\\
+10,000,000 & Mayor procesamiento & 44.029 & 20.945 & Multihilo\\
 \hline
 \end{tabular}
+}%
 \end{table}
 
-\espaciofoto{codigo.png}
-{Fotografía del código Java de la Actividad 7}
-{Código de la comparación secuencial y multihilo.}
+\espaciofoto{Captura de pantalla 2026-09-19 a la(s) 8.52.50 a.m..png}
+{Fotografía de la primera parte del código Java de la Actividad 7}
+{Código Java, parte 1 de 4: generación de los arreglos y suma secuencial.}
 {9cm}
 
-\espaciofoto{salida.png}
+\espaciofoto{Captura de pantalla 2026-09-19 a la(s) 8.53.20 a.m..png}
+{Fotografía de la segunda parte del código Java de la Actividad 7}
+{Código Java, parte 2 de 4: suma multihilo y división del arreglo.}
+{9cm}
+
+\espaciofoto{Captura de pantalla 2026-09-19 a la(s) 8.53.55 a.m..png}
+{Fotografía de la tercera parte del código Java de la Actividad 7}
+{Código Java, parte 3 de 4: procesamiento de mayor complejidad con cuatro hilos.}
+{9cm}
+
+\espaciofoto{Captura de pantalla 2026-09-19 a la(s) 8.54.37 a.m..png}
+{Fotografía de la cuarta parte del código Java de la Actividad 7}
+{Código Java, parte 4 de 4: medición de tiempos y ejecución de las pruebas.}
+{9cm}
+
+\espaciofoto{resultados.png}
 {Fotografía de la ejecución completa y de la tabla de tiempos obtenida en la computadora del estudiante}
 {Salida real del programa con los tiempos promedio.}
 {9cm}
