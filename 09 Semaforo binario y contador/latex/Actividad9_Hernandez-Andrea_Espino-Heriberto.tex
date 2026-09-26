@@ -1,10 +1,9 @@
-% Reporte de la Actividad 7
-% Procesamiento secuencial y multihilo
+% Reporte de la Actividad 9
+% Semaforo binario y contador
 \documentclass[12pt,oneside]{template/liverpoolthesis}
 \input{template/preamble}
 
-% ---------- Datos de esta actividad ----------
-\title{Actividad 7: Procesamiento secuencial y multihilo}
+\title{Actividad 9: Semáforo binario y contador}
 \author{%
   Andrea Hernandez Huerta\\
   ID: 175523\\[1em]
@@ -14,14 +13,13 @@
 \faculty{Universidad de las Américas Puebla (UDLAP)}
 \school{Licenciatura en Ciencia de Datos}
 \degree{Curso: Programación Concurrente}
-\date{Fecha de entrega: 24 de septiembre de 2026}
-\subject{Comparación de procesamiento secuencial y multihilo}
+\date{Fecha de entrega: \today}
+\subject{Semáforo binario y semáforo contador}
 
-\addto\captionsspanish{\renewcommand{\chaptername}{Ejercicio}}
+\addto\captionsspanish{\renewcommand{\chaptername}{Parte}}
 \providecommand{\figureautorefname}{Figura}
 \addto\captionsspanish{\renewcommand{\figureautorefname}{Figura}}
 
-% Inserta una fotografía proporcionada por el estudiante o deja un espacio
 \newcommand{\espaciofoto}[4]{%
   \clearpage
   \begin{figure}[H]
@@ -52,213 +50,271 @@
 
 \mainmatter
 
-\chapter{Comparación secuencial y multihilo}
+\chapter{Semáforo binario: cuenta bancaria}
 
-\textbf{Comparar el rendimiento de una implementación secuencial y
-una multihilo según el tamaño y la complejidad del problema. Se generan
-arreglos de enteros entre 1 y 100 con 40, 100,000, 1,000,000 y 10,000,000 de
-elementos. Para cada arreglo se realizan una suma sencilla y una operación de
-mayor procesamiento,
-\[
-  \sqrt{x}\,\log(x+1),
-\]
-tanto de manera secuencial como con cuatro hilos. Cada implementación se
-ejecuta diez veces y se registra el tiempo promedio sin incluir la generación
-del arreglo.}
-
-\section{Objetivo}
-
-El objetivo es observar cómo influyen dos variables sobre el tiempo de
-ejecución: el número de elementos del arreglo y la cantidad de cómputo
-realizada por elemento. La comparación permite identificar cuándo el costo de
-crear, iniciar, planificar y sincronizar cuatro hilos puede ser compensado por
-el trabajo que se ejecuta de forma concurrente.
+\textbf{Instrucción.} Crear una cuenta bancaria compartida con saldo inicial de
+\$1000 y cinco hilos que realicen depósitos y retiros. Utilizar un semáforo
+binario inicializado en 1. Cada hilo debe solicitar el permiso, consultar y
+modificar el saldo y liberar el permiso. Se debe comprobar que solamente un
+hilo modifique el saldo a la vez y realizar una prueba de escritorio con dos
+hilos.
 
 \section{Entradas}
 
-El programa utiliza cuatro tamaños de arreglo:
+La cuenta bancaria inicia con un saldo de \$1000. Los cinco hilos comparten la
+misma instancia de \texttt{CuentaBancaria} y la misma instancia de
+\texttt{BinarySemaphore}. El semáforo se crea con \texttt{true}, equivalente
+a un único permiso disponible.
+
+Las operaciones utilizadas en la ejecución son tres depósitos de \$200,
+\$300 y \$50, y dos retiros de \$150 y \$100. Por ello, el saldo final esperado
+es
 \[
-40,\qquad 100\,000,\qquad 1\,000\,000,\qquad 10\,000\,000.
+1000+200-150+300-100+50=1300.
 \]
-Cada posición contiene un entero pseudoaleatorio entre 1 y 100. El mismo
-arreglo se utiliza para comparar las dos implementaciones de una operación, de
-manera que ambas reciben exactamente los mismos datos.
 
 \section{Procesamiento}
 
-Para la prueba de suma sencilla, la versión secuencial recorre el arreglo
-completo con un solo flujo y acumula los valores en una variable
-\texttt{long}. La versión multihilo divide los índices del arreglo en cuatro
-intervalos. Cada hilo calcula un subtotal y lo guarda en una posición exclusiva
-de un arreglo de resultados parciales.
+La implementación conserva la estructura del pseudocódigo presentado en
+clase. La clase \texttt{BinarySemaphore} mantiene una variable booleana
+\texttt{value}. Cuando su valor es \texttt{true}, el permiso está disponible;
+cuando es \texttt{false}, el permiso está ocupado.
 
-Para la prueba de mayor procesamiento se utiliza, para cada elemento \(x\),
-\[
-f(x)=\sqrt{x}\log(x+1).
-\]
-En Java se implementa mediante
-\texttt{Math.sqrt(valor) * Math.log(valor + 1.0)}. La versión secuencial
-acumula todos los valores en un único flujo; la versión multihilo aplica la
-misma división en cuatro intervalos y calcula cuatro subtotales.
+La operación \texttt{P()} es un método \texttt{synchronized}. Mientras el
+permiso esté ocupado, el hilo ejecuta \texttt{Util.mywait(this)}. La espera
+libera temporalmente el monitor para permitir que otro hilo ejecute
+\texttt{V()}. Al obtener el permiso, \texttt{P()} cambia el valor a
+\texttt{false}.
 
-Los cuatro hilos se crean primero y se inician mediante \texttt{start()}.
-Posteriormente, el hilo principal ejecuta \texttt{join()} sobre cada uno.
-Solo después de que los cuatro han terminado se combinan sus resultados
-parciales.
+La operación \texttt{V()} también es \texttt{synchronized}: cambia el valor a
+\texttt{true} y ejecuta \texttt{notify()} para despertar a uno de los hilos
+bloqueados.
 
-\section{Estructuras de control utilizadas}
+La clase \texttt{CuentaBancaria} no utiliza \texttt{synchronized}; el acceso
+al saldo queda protegido externamente por el semáforo. Cada
+\texttt{OperacionBancaria} ejecuta \texttt{P()} antes de entrar a la sección
+crítica y \texttt{V()} en la sección de salida.
 
-Se emplean ciclos \texttt{for} para generar los datos, recorrer los arreglos y
-repetir cada medición diez veces. La versión multihilo utiliza un arreglo de
-cuatro objetos \texttt{Thread}. Cada hilo recibe una tarea mediante una
-expresión lambda y procesa el intervalo
-\[
-\left[
-\frac{i n}{4},
-\frac{(i+1)n}{4}
-\right),
-\]
-donde \(i\in\{0,1,2,3\}\) es el identificador del hilo y \(n\) es el tamaño del
-arreglo.
-
-Cada hilo escribe únicamente en su propia posición del arreglo de resultados
-parciales. Por ello no se requiere un cerrojo para los subtotales. Las llamadas
-a \texttt{join()} garantizan que todos los resultados parciales estén
-disponibles antes de combinarlos.
-
-\section{Medición del tiempo}
-
-La generación del arreglo se realiza antes de iniciar cualquier cronómetro, tal
-como solicita la actividad. Cada implementación se ejecuta diez veces. Para
-cada repetición se utiliza \texttt{System.nanoTime()} y se acumula la duración.
-El promedio en milisegundos se calcula como
-\[
-\bar t =
-\frac{\sum_{k=1}^{10} t_k}{10\cdot 10^6}.
-\]
-
-El tiempo de la versión multihilo incluye la creación, el inicio y la
-sincronización de los hilos, pues esas operaciones forman parte de la
-implementación que se desea comparar.
-
-\section{Comprobación de resultados}
-
-Para la suma sencilla, los resultados secuencial y multihilo deben coincidir
-exactamente. Para la operación con \texttt{double}, el orden de las sumas
-cambia entre ambas implementaciones y puede generar diferencias mínimas de
-redondeo. Por ello se comprueba equivalencia con una tolerancia relativa de
-\(10^{-10}\). Si alguna comprobación falla, el programa lanza una excepción en
-lugar de presentar tiempos de implementaciones que producen resultados
-distintos.
-
-\section{Resultados}
-
-Los tiempos son dependientes del procesador, de la JVM y de la carga del
-sistema. El Cuadro~\ref{tab:resultados} presenta los promedios obtenidos en la
-última ejecución visible en la evidencia de la computadora utilizada. Cada
-valor corresponde al promedio de diez repeticiones del programa.
+\section{Estructura de clases}
 
 \begin{table}[H]
 \centering
-\small
-\caption{Comparación de tiempos promedio entre las implementaciones.}
-\label{tab:resultados}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{r l c c c}
-\hline
-\textbf{Tamaño} & \textbf{Operación} &
-\textbf{Secuencial (ms)} & \textbf{Multihilo (ms)} & \textbf{Más rápido}\\
-\hline
-40 & Suma & 0.000 & 0.256 & Secuencial\\
-40 & Mayor procesamiento & 0.011 & 0.247 & Secuencial\\
-100,000 & Suma & 0.217 & 0.375 & Secuencial\\
-100,000 & Mayor procesamiento & 0.642 & 0.930 & Secuencial\\
-1,000,000 & Suma & 0.292 & 0.289 & Multihilo\\
-1,000,000 & Mayor procesamiento & 5.003 & 2.192 & Multihilo\\
-10,000,000 & Suma & 2.518 & 1.065 & Multihilo\\
-10,000,000 & Mayor procesamiento & 44.029 & 20.945 & Multihilo\\
-\hline
-\end{tabular}
-}%
+\caption{Responsabilidad de las clases de la parte 1.}
+\label{tab:clases-binario}
+\begin{tabularx}{\textwidth}{P{3.7cm} L P{2.6cm}}
+\toprule
+\textbf{Clase} & \textbf{Responsabilidad} & \textbf{Uso de synchronized}\\
+\midrule
+Principal & Crea la cuenta, el semáforo y los cinco hilos; utiliza
+\texttt{start()} y \texttt{join()}. & No lo requiere.\\
+\texttt{BinarySemaphore} & Controla el único permiso mediante
+\texttt{P()} y \texttt{V()}. & \texttt{P()} y \texttt{V()} son
+\texttt{synchronized}.\\
+\texttt{CuentaBancaria} & Almacena el saldo y realiza depósitos y retiros. &
+No es necesario si el acceso está protegido por el semáforo.\\
+\texttt{OperacionBancaria} & Define la sección crítica ejecutada por cada
+hilo y utiliza \texttt{P()} antes y \texttt{V()} después de modificar la
+cuenta. & No lo requiere.\\
+\bottomrule
+\end{tabularx}
 \end{table}
 
-\espaciofoto{Captura de pantalla 2026-09-19 a la(s) 8.52.50 a.m..png}
-{Fotografía de la primera parte del código Java de la Actividad 7}
-{Código Java, parte 1 de 4: generación de los arreglos y suma secuencial.}
+\section{Conceptos utilizados}
+
+El semáforo binario realiza exclusión mutua porque existe un solo permiso. Si
+un hilo ya lo obtuvo, los demás se bloquean en \texttt{P()} hasta que el hilo
+que se encuentra en la sección crítica ejecute \texttt{V()}. A diferencia de
+la espera activa estudiada con Test-and-Set, la operación de espera utiliza
+\texttt{wait()}, por lo que el hilo bloqueado libera el monitor y no permanece
+consultando continuamente el valor del semáforo.
+
+En las diapositivas, \texttt{P()} corresponde a solicitar un permiso, también
+llamada \texttt{acquire()}, \texttt{wait()} o \texttt{down()}.
+\texttt{V()} corresponde a liberar un permiso, también llamada
+\texttt{release()}, \texttt{signal()} o \texttt{up()}.
+
+\section{Prueba de escritorio}
+
+Para la prueba se consideran dos hilos. El hilo A deposita \$200 y el hilo B
+retira \$150. El semáforo inicia disponible y el saldo inicia en \$1000.
+
+\begin{table}[H]
+\centering
+\caption{Prueba de escritorio del semáforo binario con dos hilos.}
+\label{tab:prueba-binario}
+\begin{tabularx}{\textwidth}{c L c c L}
+\toprule
+\textbf{Paso} & \textbf{Acción} & \textbf{Semáforo} & \textbf{Saldo} &
+\textbf{Resultado}\\
+\midrule
+0 & Estado inicial & 1 & 1000 & Permiso disponible.\\
+1 & Hilo A ejecuta \texttt{P()} & 0 & 1000 & A entra a la sección crítica.\\
+2 & Hilo B ejecuta \texttt{P()} & 0 & 1000 & B se bloquea porque el permiso está ocupado.\\
+3 & A deposita \$200 & 0 & 1200 & Solo A modifica la cuenta.\\
+4 & A ejecuta \texttt{V()} & 1 & 1200 & Se libera el permiso y B es despertado.\\
+5 & B completa \texttt{P()} & 0 & 1200 & B obtiene el permiso.\\
+6 & B retira \$150 & 0 & 1050 & Solo B modifica la cuenta.\\
+7 & B ejecuta \texttt{V()} & 1 & 1050 & El permiso queda disponible.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Salida esperada y comprobación}
+
+El programa muestra cuándo cada hilo entra a la sección crítica, el saldo antes
+y después de la operación y el saldo final. Las cinco operaciones producen un
+saldo esperado de \$1300. La comprobación adicional debe reportar un máximo de
+un hilo modificando el saldo al mismo tiempo.
+
+\espaciofoto{binario_codigo.png}
+{Fotografía del código Java correspondiente al semáforo binario y la cuenta bancaria}
+{Código Java de la parte 1: semáforo binario y cuenta bancaria.}
 {9cm}
 
-\espaciofoto{Captura de pantalla 2026-09-19 a la(s) 8.53.20 a.m..png}
-{Fotografía de la segunda parte del código Java de la Actividad 7}
-{Código Java, parte 2 de 4: suma multihilo y división del arreglo.}
+\espaciofoto{binario_salida.png}
+{Fotografía de la ejecución real del semáforo binario en la computadora del estudiante}
+{Salida de la parte 1 y comprobación de exclusión mutua.}
 {9cm}
 
-\espaciofoto{Captura de pantalla 2026-09-19 a la(s) 8.53.55 a.m..png}
-{Fotografía de la tercera parte del código Java de la Actividad 7}
-{Código Java, parte 3 de 4: procesamiento de mayor complejidad con cuatro hilos.}
+\chapter{Semáforo contador: impresoras}
+
+\textbf{Instrucción.} Simular un laboratorio con tres impresoras y ocho hilos
+que desean imprimir. Utilizar un semáforo contador inicializado en 3. Cada hilo
+debe solicitar una impresora, indicar que comienza a imprimir, esperar un
+tiempo para simular la impresión, indicar que termina y liberar la impresora.
+Se debe verificar que nunca existan más de tres hilos imprimiendo
+simultáneamente y realizar una prueba de escritorio con dos impresoras y cuatro
+hilos.
+
+\section{Entradas}
+
+El recurso está formado por tres impresoras equivalentes. El programa crea un
+semáforo contador con valor inicial 3 y ocho hilos que comparten el mismo
+semáforo. Cada tarea mantiene ocupada una impresora durante un intervalo breve
+para hacer visible la concurrencia en la salida.
+
+\section{Procesamiento}
+
+La clase \texttt{CountingSemaphore} mantiene un entero \texttt{value}, como en
+el pseudocódigo mostrado en clase. En \texttt{P()} se decrementa el valor. Si
+el resultado es negativo, el hilo ejecuta una espera bloqueada. Un valor
+negativo representa que existen hilos esperando un recurso.
+
+En \texttt{V()} se incrementa el valor. Si después del incremento el valor es
+menor o igual que cero, existe al menos un hilo esperando y se ejecuta
+\texttt{notify()} para despertar a uno. Tanto \texttt{P()} como \texttt{V()}
+son métodos \texttt{synchronized}.
+
+Cada hilo solicita una impresora con \texttt{P()}, realiza la simulación de
+impresión y finalmente devuelve el permiso con \texttt{V()}. La pausa usada
+para simular la impresión no constituye el mecanismo de sincronización;
+únicamente representa el tiempo durante el cual el recurso permanece ocupado.
+
+\section{Estructura de clases}
+
+\begin{table}[H]
+\centering
+\caption{Responsabilidad de las clases de la parte 2.}
+\label{tab:clases-contador}
+\begin{tabularx}{\textwidth}{P{3.8cm} L P{2.7cm}}
+\toprule
+\textbf{Clase} & \textbf{Responsabilidad} & \textbf{Uso de synchronized}\\
+\midrule
+Principal & Crea el semáforo con tres permisos y los ocho hilos; utiliza
+\texttt{start()} y \texttt{join()}. & No lo requiere.\\
+\texttt{CountingSemaphore} & Mantiene el número de permisos y controla la
+espera mediante \texttt{P()} y \texttt{V()}. & \texttt{P()} y \texttt{V()}
+son \texttt{synchronized}.\\
+\texttt{TareaImpresion} & Solicita una impresora, simula su utilización y la
+libera al terminar. & No lo requiere.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Prueba de escritorio}
+
+La prueba utiliza dos impresoras y cuatro hilos A, B, C y D. Los dos primeros
+hilos obtienen un recurso. Los siguientes disminuyen el contador por debajo de
+cero y quedan bloqueados. Cuando A y B liberan sus impresoras, C y D son
+despertados de uno en uno.
+
+\begin{table}[H]
+\centering
+\caption{Prueba de escritorio del semáforo contador con dos impresoras y cuatro hilos.}
+\label{tab:prueba-contador}
+\begin{tabularx}{\textwidth}{c L c P{2.0cm} L}
+\toprule
+\textbf{Paso} & \textbf{Acción} & \textbf{Semáforo} & \textbf{Cola} &
+\textbf{Resultado}\\
+\midrule
+0 & Estado inicial & 2 & Vacía & Dos impresoras disponibles.\\
+1 & Hilo A ejecuta \texttt{P()} & 1 & Vacía & A utiliza una impresora.\\
+2 & Hilo B ejecuta \texttt{P()} & 0 & Vacía & B utiliza la otra impresora.\\
+3 & Hilo C ejecuta \texttt{P()} & -1 & C & C se bloquea.\\
+4 & Hilo D ejecuta \texttt{P()} & -2 & C, D & D se bloquea.\\
+5 & Hilo A ejecuta \texttt{V()} & -1 & D & C despierta y utiliza la impresora liberada.\\
+6 & Hilo B ejecuta \texttt{V()} & 0 & Vacía & D despierta y utiliza la impresora liberada.\\
+7 & Hilo C ejecuta \texttt{V()} & 1 & Vacía & Queda una impresora disponible.\\
+8 & Hilo D ejecuta \texttt{V()} & 2 & Vacía & Quedan dos impresoras disponibles.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Salida esperada y comprobación}
+
+La salida identifica cuándo inicia y termina cada hilo y muestra cuántos hilos
+se encuentran imprimiendo. El orden exacto puede cambiar entre ejecuciones
+porque depende de la planificación de los hilos. La propiedad que sí debe
+mantenerse es que el máximo observado nunca sea mayor que 3.
+
+\espaciofoto{contador_codigo.png}
+{Fotografía del código Java correspondiente al semáforo contador y la simulación de impresoras}
+{Código Java de la parte 2: semáforo contador e impresoras.}
 {9cm}
 
-\espaciofoto{Captura de pantalla 2026-09-19 a la(s) 8.54.37 a.m..png}
-{Fotografía de la cuarta parte del código Java de la Actividad 7}
-{Código Java, parte 4 de 4: medición de tiempos y ejecución de las pruebas.}
+\espaciofoto{contador_salida.png}
+{Fotografía de la ejecución real del semáforo contador en la computadora del estudiante}
+{Salida de la parte 2 y comprobación del máximo de tres impresiones simultáneas.}
 {9cm}
 
-\espaciofoto{resultados.png}
-{Fotografía de la ejecución completa y de la tabla de tiempos obtenida en la computadora del estudiante}
-{Salida real del programa con los tiempos promedio.}
-{9cm}
+\chapter{Comparación y conclusión}
 
-\chapter{Análisis y conclusiones}
+\section{Comparación}
 
-\section{¿En qué casos fue más rápida cada implementación?}
-
-La respuesta definitiva debe basarse en los valores medidos de la
-\autoref{tab:resultados}. Para arreglos pequeños, el trabajo útil puede ser tan
-breve que el costo de crear, iniciar y sincronizar cuatro hilos sea comparable
-o incluso mayor que el propio cálculo. En ese caso es razonable observar un
-menor tiempo en la implementación secuencial.
-
-Al crecer el arreglo, especialmente en la operación
-\(\sqrt{x}\log(x+1)\), existe más cómputo independiente que repartir entre los
-cuatro hilos. Si la computadora dispone de capacidad de ejecución paralela,
-la versión multihilo puede entonces reducir el tiempo promedio. Esta
-interpretación debe contrastarse con los datos obtenidos en la ejecución
-local.
-
-\section{¿Cómo influyeron el tamaño del arreglo y la complejidad de la operación?}
-
-Aumentar el tamaño incrementa el número de elementos que deben procesarse.
-Además, la suma sencilla realiza una operación aritmética muy económica,
-mientras que la segunda prueba evalúa una raíz cuadrada y un logaritmo para
-cada elemento. Por tanto, el segundo caso asigna más trabajo computacional a
-cada sección del arreglo.
-
-Cuando el trabajo por elemento es pequeño, los costos asociados con los hilos
-representan una fracción importante del tiempo total. Al incrementar el tamaño
-o la complejidad, esa fracción puede disminuir porque cada hilo permanece más
-tiempo realizando trabajo útil.
-
-\section{¿Por qué utilizar varios hilos no siempre mejora el rendimiento?}
-
-Crear hilos y coordinarlos tiene un costo. Además, el sistema operativo debe
-planificar su ejecución y el procesador dispone de una cantidad finita de
-núcleos y recursos compartidos. Si la tarea es demasiado pequeña, el trabajo
-adicional de administrar los hilos puede superar el tiempo que se pretende
-ahorrar. Por ello, el uso de varios hilos no implica por sí solo una mejora de
-rendimiento; el beneficio depende del tamaño del problema, de la complejidad
-del cálculo y del hardware donde se ejecuta.
+\begin{table}[H]
+\centering
+\caption{Comparación entre semáforo binario y semáforo contador.}
+\label{tab:comparacion}
+\begin{tabularx}{\textwidth}{P{4.0cm} C C}
+\toprule
+\textbf{Aspecto} & \textbf{Semáforo binario} & \textbf{Semáforo contador}\\
+\midrule
+Valor inicial en la actividad & 1 (\texttt{true}) & 3\\
+Permisos disponibles inicialmente & 1 & 3\\
+Recurso controlado & Cuenta bancaria & Tres impresoras\\
+Número máximo de hilos simultáneos & 1 & 3\\
+Cuándo se bloquea un hilo & Cuando el único permiso está ocupado &
+Cuando no queda un permiso disponible\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{Conclusión}
 
-La actividad compara dos formas de ejecutar exactamente el mismo cálculo. La
-versión secuencial evita el costo de coordinación, mientras que la versión
-multihilo divide el trabajo en cuatro secciones independientes y sincroniza su
-terminación mediante \texttt{join()}. La comparación correcta requiere medir
-ambas alternativas sobre los mismos datos, excluir la generación del arreglo
-del cronómetro y verificar que los resultados numéricos sean equivalentes.
+Los dos semáforos coordinan hilos mediante permisos, pero representan problemas
+diferentes. El semáforo binario mantiene un solo permiso y por ello se utiliza
+para exclusión mutua sobre un recurso compartido, como el saldo de la cuenta.
+El semáforo contador mantiene varios permisos y permite que una cantidad
+limitada de hilos utilice simultáneamente recursos equivalentes, como las tres
+impresoras.
 
-Los datos de la \autoref{tab:resultados} permiten determinar experimentalmente
-en qué punto el trabajo disponible es suficiente para compensar el costo de
-usar cuatro hilos.
+En ambos casos, \texttt{P()} solicita un permiso y puede bloquear al hilo,
+mientras que \texttt{V()} devuelve un permiso y puede despertar a un hilo que
+espera. La diferencia principal está en la cantidad de permisos que representa
+el semáforo. Las pruebas de escritorio muestran esta diferencia: el semáforo
+binario obliga a que los accesos a la cuenta ocurran uno por uno, mientras que
+el semáforo contador permite hasta tres impresiones concurrentes sin superar el
+número de recursos disponibles.
 
 \cleardoublepage
 \phantomsection

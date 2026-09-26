@@ -1,107 +1,76 @@
-# Actividad 7 - Procesamiento secuencial y multihilo
+# Actividad 9 - Semáforo binario y contador
 
 ## Objetivo
 
-Comparar el rendimiento de una implementación secuencial y una implementación con cuatro hilos al aumentar:
+Implementar y comparar dos tipos de semáforo para coordinar varios hilos:
 
-1. el tamaño del arreglo
-2. la cantidad de trabajo realizada por cada elemento
+- **semáforo binario:** controla un único permiso
+- **semáforo contador:** controla varios permisos del mismo tipo
 
-La actividad pide arreglos de enteros entre 1 y 100 con tamaños de **40**, **100,000**, **1,000,000** y **10,000,000** elementos.
+La implementación conserva la estructura mostrada en el pseudocódigo de clase. No se sustituye por `java.util.concurrent.Semaphore`: se mantienen `value`, `P()`, `V()`, `synchronized`, `Util.mywait(this)` y `notify()`.
 
-Para cada tamaño se comparan dos operaciones:
+| Concepto | Pseudocódigo | Java habitual | Función |
+|---|---|---|---|
+| solicitar permiso | `P()` | `acquire()` | intenta obtener un permiso |
+| liberar permiso | `V()` | `release()` | devuelve un permiso |
 
-- **Suma sencilla:** acumular todos los elementos
-- **Mayor procesamiento:** acumular `sqrt(x) * log(x + 1)` para cada elemento
+## Parte 1 - Semáforo binario
 
-Cada operación se ejecuta de dos maneras:
+Se simula una cuenta bancaria compartida con saldo inicial de **$1000** y cinco hilos que realizan depósitos y retiros. `true` significa permiso disponible y `false` permiso ocupado.
 
-- **Secuencial:** un solo flujo procesa todo el arreglo
-- **Multihilo:** cuatro hilos procesan secciones diferentes del arreglo usando `start()` y `join()`
+El método `P()` espera mientras `value == false` y después cambia `value` a `false`. El método `V()` cambia `value` a `true` y ejecuta `notify()`.
 
-Cada implementación se mide **10 veces** y se reporta el tiempo promedio. La generación del arreglo queda fuera de la medición.
+La cuenta bancaria no usa `synchronized` en sus operaciones: la exclusión mutua la proporciona el semáforo porque cada hilo ejecuta `P()` antes de consultar o modificar el saldo y `V()` al salir.
 
-## Idea conceptual
+La prueba verifica que el máximo de hilos modificando el saldo al mismo tiempo sea **1**.
 
-La versión multihilo divide el arreglo en cuatro intervalos:
+## Parte 2 - Semáforo contador
 
-```text
-arreglo completo
-|---------|---------|---------|---------|
-   hilo 0    hilo 1    hilo 2    hilo 3
-```
+Se simula un laboratorio con **3 impresoras** y **8 hilos** que desean imprimir. El semáforo contador inicia con `value = 3`.
 
-Cada hilo calcula un resultado parcial en una posición distinta. Después de llamar a `join()` sobre los cuatro hilos, el hilo principal combina los cuatro resultados.
+Cada `P()` decrementa `value`; si el resultado es negativo, el hilo se bloquea. Cada `V()` incrementa `value`; si el resultado es menor o igual que cero, se despierta a un hilo bloqueado. Esta estructura reproduce el pseudocódigo de las diapositivas.
 
-No se necesita un cerrojo para los subtotales porque cada hilo escribe en una posición distinta del arreglo de resultados. `join()` garantiza que todos hayan terminado antes de leer y combinar esos subtotales.
+La prueba verifica que nunca existan más de **3 hilos imprimiendo simultáneamente**.
 
-## Qué se está comparando
+## Relación con las actividades anteriores
 
-La versión multihilo tiene trabajo adicional:
+- **exclusión mutua:** el semáforo binario permite que solo un hilo use la cuenta
+- **sincronización:** un hilo puede quedar bloqueado hasta que otro libere un permiso
+- **espera bloqueada:** a diferencia de Test-and-Set, el hilo usa `wait()` en vez de mantenerse en espera activa
+- **hilos:** varios `Thread` compiten por permisos sobre recursos compartidos
 
-- crear objetos `Thread`
-- iniciar los hilos
-- planificarlos
-- esperar con `join()`
-- combinar resultados parciales
+## Comparación
 
-Ese costo puede ser mayor que el trabajo útil cuando el arreglo es pequeño o la operación es muy sencilla. Cuando el arreglo crece y cada elemento exige más cómputo, los cuatro hilos tienen más trabajo que repartir y el paralelismo puede compensar ese costo.
-
-Por eso la pregunta de la actividad no es simplemente "¿multihilo es más rápido?", sino:
-
-> ¿A partir de qué tamaño y complejidad el trabajo paralelo compensa el costo de manejar varios hilos?
-
-## Medición
-
-El programa utiliza `System.nanoTime()` y convierte el promedio a milisegundos.
-
-La generación del arreglo se hace antes de iniciar el cronómetro:
-
-```text
-generar arreglo
-      |
-      v
-iniciar cronómetro
-      |
-      v
-ejecutar operación
-      |
-      v
-detener cronómetro
-```
-
-Los tiempos dependen del procesador, la JVM y la carga del sistema, por lo que la tabla del reporte debe completarse con la ejecución realizada en la computadora usada para la evidencia.
-
-## Verificación de resultados
-
-La suma usa `long` y se compara exactamente.
-
-La operación de mayor procesamiento usa `double`. Como el orden de suma cambia al dividir el arreglo entre hilos, pueden aparecer diferencias mínimas de redondeo de punto flotante. El programa las compara con una tolerancia numérica pequeña.
-
-En Java, la expresión del ejercicio se implementa como:
-
-```java
-Math.sqrt(valor) * Math.log(valor + 1.0)
-```
-
-donde `Math.log` es el logaritmo natural.
+| Aspecto | Semáforo binario | Semáforo contador |
+|---|---|---|
+| valor inicial de la actividad | 1 (`true`) | 3 |
+| permisos disponibles | 1 | 3 |
+| recurso controlado | una cuenta bancaria | tres impresoras |
+| máximo de hilos simultáneos | 1 | 3 |
+| bloqueo | cuando el único permiso está ocupado | cuando no queda un permiso disponible |
 
 ## Estructura
 
 ```text
-07 Procesamiento secuencial y multihilo/
-  Actividad 7.pdf
+09 Semaforo binario y contador/
+  Actividad 9.pdf
   readme.md
+  slides/
   code/
     java/
-      Ejercicio01ProcesamientoSecuencialMultihilo.java
+      Util.java
+      Ejercicio01SemaforoBinario.java
+      Ejercicio02SemaforoContador.java
   code ultra commented/
     java/
-      Ejercicio01ProcesamientoSecuencialMultihilo.java
+      Util.java
+      Ejercicio01SemaforoBinario.java
+      Ejercicio02SemaforoContador.java
   latex/
-    Actividad7_Hernandez_Andrea_Espino_Heriberto.tex
+    Actividad9_Hernandez-Andrea_Espino-Heriberto.tex
     figuras/
     template/
+    build/
 ```
 
 ## Ejecutar
@@ -109,14 +78,9 @@ donde `Math.log` es el logaritmo natural.
 Desde `code/java`:
 
 ```bash
-javac Ejercicio01ProcesamientoSecuencialMultihilo.java
-java Ejercicio01ProcesamientoSecuencialMultihilo
+javac *.java
+java Ejercicio01SemaforoBinario
+java Ejercicio02SemaforoContador
 ```
 
-La salida genera la tabla:
-
-```text
-Tamano | Operacion | Secuencial (ms) | Multihilo (ms) | Mas rapido
-```
-
-y termina confirmando que las versiones secuencial y multihilo produjeron resultados equivalentes.
+La primera ejecución debe terminar con saldo **$1300.00** y máximo simultáneo **1**. La segunda debe reportar máximo simultáneo **3**.
