@@ -23,6 +23,7 @@
 
 # Carpetas de compilación de LaTeX
 **/latex/build/
+**/build/
 
 # Archivos generados al compilar C
 *.o
@@ -35,4 +36,3 @@ cachegrind.out.*
 
 # Archivos compilados de Java
 *.class
-

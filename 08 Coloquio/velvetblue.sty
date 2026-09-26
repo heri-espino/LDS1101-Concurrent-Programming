@@ -1,0 +1,242 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{velvetblue}[2026/09/15 Personal academic draft style]
+
+% ============================================================
+% Options
+% ============================================================
+
+\newif\ifVelvetMath
+\newif\ifVelvetDraft
+\newif\ifVelvetCompact
+\newif\ifVelvetCover
+
+% Defaults:
+%   general citations
+%   draft diagnostics enabled
+\VelvetMathfalse
+\VelvetDrafttrue
+\VelvetCompactfalse
+\VelvetCoverfalse
+
+\DeclareOption{general}{\VelvetMathfalse}
+\DeclareOption{math}{\VelvetMathtrue}
+
+\DeclareOption{draft}{\VelvetDrafttrue}
+\DeclareOption{final}{\VelvetDraftfalse}
+
+% ``compact`` matches the house manuscript margins (1.8 cm).  ``generous``
+% retains the centred, half-area text block used for annotated drafts.
+\DeclareOption{compact}{\VelvetCompacttrue}
+\DeclareOption{generous}{\VelvetCompactfalse}
+
+% Add a configurable institutional cover before the document body.
+\DeclareOption{portada}{\VelvetCovertrue}
+\DeclareOption{sinportada}{\VelvetCoverfalse}
+
+\ProcessOptions\relax
+
+% ============================================================
+% Mathematics
+% ============================================================
+
+\RequirePackage{amsmath}
+
+% ============================================================
+% Typography
+% ============================================================
+
+\RequirePackage{libertinus}
+
+\RequirePackage[
+    protrusion=false,
+    expansion=false
+]{microtype}
+
+% Additional flexibility before TeX produces an overfull line.
+\emergencystretch=2em
+
+% ============================================================
+% Page geometry
+%
+% A4:
+%   210 mm × 297 mm
+%
+% Text block:
+%   148.5 mm × 210 mm
+%
+% Linear scale:
+%   1/sqrt(2)
+%
+% Area ratio:
+%   1/2
+% ============================================================
+
+\ifVelvetCompact
+    \RequirePackage[
+        a4paper,
+        top=1.8cm,
+        bottom=1.8cm,
+        left=1.8cm,
+        right=1.8cm
+    ]{geometry}
+\else
+    \RequirePackage[
+        a4paper,
+        textwidth=148.5mm,
+        textheight=210mm,
+        hcentering,
+        vcentering
+    ]{geometry}
+\fi
+
+% ============================================================
+% Figures and tables
+% ============================================================
+
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{caption}
+\RequirePackage{pdflscape}
+
+% ============================================================
+% Optional cover page
+% ============================================================
+
+\newcommand{\VelvetCoverLogo}{}
+\newcommand{\VelvetCoverUniversity}{}
+\newcommand{\VelvetCoverDegree}{}
+\newcommand{\VelvetCoverActivity}{}
+\newcommand{\VelvetCoverAuthors}{}
+\newcommand{\VelvetCoverProfessor}{}
+\newcommand{\VelvetCoverCourse}{}
+\newcommand{\VelvetCoverDate}{}
+
+\newcommand{\VelvetPortadaLogo}[1]{\renewcommand{\VelvetCoverLogo}{#1}}
+\newcommand{\VelvetPortadaUniversidad}[1]{\renewcommand{\VelvetCoverUniversity}{#1}}
+\newcommand{\VelvetPortadaLicenciatura}[1]{\renewcommand{\VelvetCoverDegree}{#1}}
+\newcommand{\VelvetPortadaActividad}[1]{\renewcommand{\VelvetCoverActivity}{#1}}
+\newcommand{\VelvetPortadaAutores}[1]{\renewcommand{\VelvetCoverAuthors}{#1}}
+\newcommand{\VelvetPortadaProfesor}[1]{\renewcommand{\VelvetCoverProfessor}{#1}}
+\newcommand{\VelvetPortadaCurso}[1]{\renewcommand{\VelvetCoverCourse}{#1}}
+\newcommand{\VelvetPortadaFecha}[1]{\renewcommand{\VelvetCoverDate}{#1}}
+
+\makeatletter
+\newcommand{\VelvetMakeCover}{%
+    \pagenumbering{roman}%
+    \newgeometry{left=40mm,right=40mm,top=40mm,bottom=40mm}%
+    \begin{titlepage}
+        \thispagestyle{empty}%
+        \centering
+        \linespread{1}\selectfont
+        \ifx\VelvetCoverLogo\@empty\else
+            \includegraphics[
+                width=.9\textwidth,
+                height=35mm,
+                keepaspectratio
+            ]{\VelvetCoverLogo}\par
+            \vspace{.9cm}%
+        \fi
+        {\large \VelvetCoverUniversity\par}
+        \vspace{.25cm}%
+        {\large \VelvetCoverDegree\par}
+        \vfill
+        {\bfseries\LARGE \VelvetCoverActivity\par}
+        \vfill
+        {\large
+            \VelvetCoverAuthors\par
+            \vspace{1em}%
+            \VelvetCoverProfessor\par
+            \vspace{1em}%
+            \VelvetCoverCourse\par
+        }
+        \vfill
+        {\large \VelvetCoverDate\par}
+    \end{titlepage}%
+    \restoregeometry
+    \pagenumbering{arabic}%
+}
+\makeatother
+
+% ============================================================
+% Color
+% ============================================================
+
+\RequirePackage{xcolor}
+
+\definecolor{VelvetBlue}{HTML}{00166C}
+
+% ============================================================
+% Bibliography
+% ============================================================
+
+\ifVelvetMath
+
+    % Mathematical drafts:
+    % compact numerical citations, e.g. [3--7, 11]
+    \RequirePackage[
+        backend=biber,
+        style=numeric-comp,
+        sorting=none,
+        maxbibnames=99,
+        giveninits=true,
+        doi=true,
+        url=false,
+        isbn=false,
+        eprint=false
+    ]{biblatex}
+
+\else
+
+    % General / ML / statistics drafts:
+    % compact author-year citations
+    \RequirePackage[
+        backend=biber,
+        style=authoryear-comp,
+        sorting=nyt,
+        maxcitenames=2,
+        maxbibnames=99,
+        giveninits=true,
+        dashed=false,
+        doi=true,
+        url=false,
+        isbn=false,
+        eprint=false
+    ]{biblatex}
+
+\fi
+
+% natbib-like aliases
+\let\citep\parencite
+\let\citet\textcite
+
+% ============================================================
+% URLs and hyperlinks
+% ============================================================
+
+\RequirePackage{xurl}
+
+\RequirePackage[
+    colorlinks=true,
+    linkcolor=VelvetBlue,
+    citecolor=VelvetBlue,
+    urlcolor=VelvetBlue
+]{hyperref}
+
+\RequirePackage[
+    nameinlink,
+    noabbrev
+]{cleveref}
+
+% Register the cover after all package initialization hooks.
+\AtBeginDocument{\ifVelvetCover\VelvetMakeCover\fi}
+
+% ============================================================
+% Draft diagnostics
+% ============================================================
+
+\ifVelvetDraft
+    \overfullrule=5pt
+\else
+    \overfullrule=0pt
+\fi

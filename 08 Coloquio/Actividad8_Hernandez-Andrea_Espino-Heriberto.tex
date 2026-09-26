@@ -1,0 +1,132 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{csquotes}
+
+%   \usepackage[general,draft,generous]{velvetblue}
+
+\usepackage[general,final,compact,portada]{velvetblue}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{setspace}
+
+\VelvetPortadaLogo{logo.png}
+\VelvetPortadaUniversidad{Universidad de las Américas Puebla (UDLAP)}
+\VelvetPortadaLicenciatura{Licenciatura en Ciencia de Datos}
+\VelvetPortadaActividad{Actividad 8: Procesamiento de Lenguaje Natural}
+\VelvetPortadaAutores{%
+    Andrea Hernandez Huerta\\
+    ID: 175523\\[1em]
+    Heriberto Espino Montelongo\\
+    ID: 175199
+}
+\VelvetPortadaProfesor{Profesor: Dr. Victor Giovanni Morales Murillo}
+\VelvetPortadaCurso{Curso: Programación Concurrente}
+\VelvetPortadaFecha{Fecha de entrega: 25 de septiembre de 2026}
+
+\setlist[enumerate]{
+    itemsep=0pt,
+    parsep=0pt,
+    topsep=0pt,
+    partopsep=0pt
+}
+
+\crefname{section}{sección}{secciones}
+\Crefname{section}{Sección}{Secciones}
+\crefname{subsection}{subsección}{subsecciones}
+\Crefname{subsection}{Subsección}{Subsecciones}
+\crefname{figure}{figura}{figuras}
+\Crefname{figure}{Figura}{Figuras}
+\crefname{table}{tabla}{tablas}
+\Crefname{table}{Tabla}{Tablas}
+\crefname{equation}{ecuación}{ecuaciones}
+\Crefname{equation}{Ecuación}{Ecuaciones}
+\crefname{enumi}{inciso}{incisos}
+\Crefname{enumi}{Inciso}{Incisos}
+
+\doublespacing
+
+\addbibresource{references.bib}
+\ExecuteBibliographyOptions{url=true}
+
+
+\begin{document}
+
+\vspace*{.4cm}
+\noindent
+Mucha información se encuentra expresada en
+\textit{lenguaje natural}: publicaciones en redes sociales, mensajes, documentos,
+reseñas o transcripciones. Estos textos se consideran
+principalmente \textit{datos no estructurados}, por lo que no pueden ser utilizados
+directamente por la mayoría de los algoritmos. Aquí aparece el
+\textbf{Procesamiento de Lenguaje Natural (PLN)}, que busca desarrollar
+métodos para representar, analizar y generar lenguaje humano.
+
+El texto se divide en \textit{tokens}; posteriormente,
+un \textit{embedding} asigna a cada token un vector para representar relaciones, permitiento usar medidas de similitud, como la similitud de coseno.
+% \begin{equation}
+%     \label{eq:similitud-coseno}
+%     \operatorname{sim}(\mathbf{x},\mathbf{y})
+%     =
+%     \frac{\mathbf{x}^{\top}\mathbf{y}}
+%     {\|\mathbf{x}\|\,\|\mathbf{y}\|},
+% \end{equation}
+A partir de estas representaciones pueden realizarse,
+entre otras, las siguientes tareas:
+\begin{enumerate}[label=\arabic*., leftmargin=*]
+    \item \textbf{Clasificación y análisis de sentimientos:} determinar el tema,
+    intención o polaridad de un texto.
+    \item \textbf{Sistemas de recomendación:} utilizar contenido mediante
+    similitudes entre vectores, filtrado colaborativo mediante matrices
+    usuario--ítem y factorización matricial, o combinaciones híbridas.
+    \item \textbf{Generación de lenguaje:} predecir sucesivamente nuevos tokens
+    condicionados por el contexto anterior.
+\end{enumerate}
+
+Una conexión importante entre PLN y programación concurrente
+aparece en los \textit{Transformers}. Antes de éstos, el procesamiento dependía
+de \textit{RNNs}, que pueden presentar problemas de
+\textit{vanishing} y \textit{exploding gradients}. Arquitecturas \textit{seq2seq}, mediante \textit{LSTMs}
+y mecanismos anteriores de atención ayudaron a resolver parte de estas
+limitaciones. \textcite{vaswani2017attention} propusieron el
+Transformer, eliminando la recurrencia y permitiendo paralelismo en
+distintas posiciones de una secuencia, calculando tres proyecciones
+denominadas \textit{queries}, \textit{keys} y \textit{values}. Los Transformers actuales pueden
+organizarse como modelos \textit{encoder--decoder}, como el trabajo original;
+\textit{encoder-only}; o \textit{decoder-only}, familia a la que pertenece Chat 
+\parencite{statquestNN,sandersonNN}.
+
+Desde la \textbf{lingüística computacional}, el lenguaje también puede estudiarse
+en distintos niveles:
+
+\begin{enumerate}[label=\arabic*., leftmargin=*]
+    \item \textbf{Fonética y fonología:} estudian los sonidos organzación dentro de una lengua, para reconocimiento de voz.
+    \item \textbf{Morfología:} estudia la estructura interna de las palabras.
+    Permite, por ejemplo, la \textit{lematización},
+    $\textit{cantábamos}\rightarrow\textit{cantar}$, o el \textit{stemming},
+    $\{\textit{trabajando},\textit{trabajadores}\}\rightarrow\textit{trabaj}$.
+    \item \textbf{Sintaxis:} estudia cómo se relacionan las palabras dentro de una
+    oración. ``\textit{Mary saw the man with a telescope}''.
+    \item \textbf{Semántica y pragmática:} estudian el significado y su dependencia
+    del contexto. ``\textit{Fui al Banco}''.
+\end{enumerate}
+
+La calidad de los datos es súper importante. Si las transcripciones o
+etiquetas utilizadas durante el entrenamiento son incorrectas, el modelo
+optimizará su función de pérdida respecto de información incorrecta.
+Este problema se intensifica cuando existen pocos datos. 
+% para las cuales existen pocos corpus digitalizados o datos anotados. 
+
+% En México
+% esto es particularmente relevante para lenguas indígenas como náhuatl, maya,
+% zapoteco o totonaco. 
+Por ello, la importancia del PLN en México es doble. Es el país con mayor hablantes que hablan español, la cuarta lengua más hablada; y al mismo tiempo, tiene una enorme  
+diversidad lingüística, con lenguas indígenas como náhuatl, maya,
+zapoteco o totonaco. Lo que  
+plantea la necesidad de construir corpus,
+anotaciones y herramientas computacionales para lenguas que actualmente cuentan
+con muchos menos datos.
+
+\printbibliography[title={Referencias}]
+
+\end{document}

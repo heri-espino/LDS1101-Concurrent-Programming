@@ -1,0 +1,45 @@
+% !TEX root = ../Practica1_Hernandez_Andrea_Espino_Heriberto.tex
+\usepackage[discipline=computer-science]{template/liverpoolthesis}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+
+% Las referencias internas y las citas usan el mismo azul que los títulos.
+\hypersetup{
+  linkcolor = LiverpoolBlue,
+  citecolor = LiverpoolBlue,
+  urlcolor = LiverpoolBlue
+}
+
+% La marca de cada capítulo aparece en el encabezado, arriba de la regla.
+\addto\captionsspanish{\renewcommand{\chaptername}{Ejercicio}}
+\providecommand{\figureautorefname}{Figura}
+\addto\captionsspanish{\renewcommand{\figureautorefname}{Figura}}
+
+\graphicspath{{figuras/}}
+\setlength{\headheight}{28pt}
+
+% Inserta una captura de código y/o de ejecución.
+% El tercer argumento es la etiqueta que se usa con \autoref{...}.
+\newcommand{\incluirevidencia}[3]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+    \label{#3}
+  \end{figure}%
+}
+
+% ---------- Datos de la portada ----------
+\title{Práctica de laboratorio 1: Creación de procesos e hilos en C y Java}
+\author{%
+  Heriberto Espino Montelongo\\
+  ID: 175199\\[1em]
+  Andrea Hernandez Huerta\\
+  ID: 175523\\[1em]
+  \text{Profesor:} Dr. Victor Giovanni Morales Murillo}
+\faculty{Universidad de las Américas Puebla (UDLAP)}
+\school{Licenciatura en Ciencia de Datos}
+\degree{Curso: Programación Concurrente}
+\date{Fecha de entrega: \today}
+\subject{Creación y ejecución de procesos e hilos en C y Java}
