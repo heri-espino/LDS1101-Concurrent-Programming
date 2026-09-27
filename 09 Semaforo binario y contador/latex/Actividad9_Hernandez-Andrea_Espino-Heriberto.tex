@@ -20,26 +20,6 @@
 \providecommand{\figureautorefname}{Figura}
 \addto\captionsspanish{\renewcommand{\figureautorefname}{Figura}}
 
-\newcommand{\espaciofoto}[4]{%
-  \clearpage
-  \begin{figure}[H]
-    \centering
-    \IfFileExists{figuras/#1}{%
-      \includegraphics[width=0.97\textwidth,height=0.70\textheight,keepaspectratio]{figuras/#1}%
-    }{%
-      \fbox{%
-        \begin{minipage}[c][#4][c]{0.88\textwidth}
-          \centering
-          \textbf{Espacio reservado para la fotografía}\\[1em]
-          #2\\[1em]
-          Agregar el archivo como \texttt{\detokenize{figuras/#1}}
-        \end{minipage}%
-      }%
-    }
-    \caption{#3}
-  \end{figure}%
-}
-
 \begin{document}
 
 \frontmatter
@@ -75,8 +55,7 @@ es
 
 \section{Procesamiento}
 
-La implementación conserva la estructura del pseudocódigo presentado en
-clase. La clase \texttt{BinarySemaphore} mantiene una variable booleana
+La clase \texttt{BinarySemaphore} mantiene una variable booleana
 \texttt{value}. Cuando su valor es \texttt{true}, el permiso está disponible;
 cuando es \texttt{false}, el permiso está ocupado.
 
@@ -118,6 +97,18 @@ cuenta. & No lo requiere.\\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\section{Utilidad compartida}
+
+La clase \texttt{Util} concentra las esperas bloqueadas y las pausas usadas
+por ambos ejercicios. Su método \texttt{mywait()} ejecuta \texttt{wait()} sobre
+el monitor recibido y conserva la interrupción del hilo; \texttt{mysleep()}
+permite simular el tiempo de una operación sin convertir la espera en un ciclo
+activo.
+
+\incluirevidencia{Util.png}
+  {Clase Java de utilidades compartidas por ambos ejercicios.}
+  {fig:util}
 
 \section{Conceptos utilizados}
 
@@ -166,15 +157,28 @@ y después de la operación y el saldo final. Las cinco operaciones producen un
 saldo esperado de \$1300. La comprobación adicional debe reportar un máximo de
 un hilo modificando el saldo al mismo tiempo.
 
-\espaciofoto{binario_codigo.png}
-{Fotografía del código Java correspondiente al semáforo binario y la cuenta bancaria}
-{Código Java de la parte 1: semáforo binario y cuenta bancaria.}
-{9cm}
+\incluirevidencia{resultados/1.png}
+  {Ejecución del semáforo binario: saldo final de \$1300 y máximo de un hilo
+   modificando el saldo simultáneamente.}
+  {fig:resultado-binario}
 
-\espaciofoto{binario_salida.png}
-{Fotografía de la ejecución real del semáforo binario en la computadora del estudiante}
-{Salida de la parte 1 y comprobación de exclusión mutua.}
-{9cm}
+\section{Evidencia de la implementación}
+
+\incluirevidencia{1/binario_codigo_01.png}
+  {Implementación de \texttt{BinarySemaphore}, \texttt{P()} y \texttt{V()}.}
+  {fig:binario-codigo-01}
+
+\incluirevidencia[0.55\textwidth]{1/binario_codigo_02.png}
+  {Implementación de \texttt{OperacionBancaria} y sus datos compartidos.}
+  {fig:binario-codigo-02}
+\vspace{-.5cm}
+\incluirevidencia[0.95\textwidth]{1/binario_codigo_03.png}
+  {Sección crítica de la operación bancaria y actualización del saldo.}
+  {fig:binario-codigo-03}
+
+\incluirevidencia{1/binario_codigo_04.png}
+  {Creación de los cinco hilos y comprobación del semáforo binario.}
+  {fig:binario-codigo-04}
 
 \chapter{Semáforo contador: impresoras}
 
@@ -267,15 +271,24 @@ se encuentran imprimiendo. El orden exacto puede cambiar entre ejecuciones
 porque depende de la planificación de los hilos. La propiedad que sí debe
 mantenerse es que el máximo observado nunca sea mayor que 3.
 
-\espaciofoto{contador_codigo.png}
-{Fotografía del código Java correspondiente al semáforo contador y la simulación de impresoras}
-{Código Java de la parte 2: semáforo contador e impresoras.}
-{9cm}
+\incluirevidencia{resultados/2.png}
+  {Ejecución del semáforo contador: máximo de tres hilos imprimiendo
+   simultáneamente, igual al límite permitido.}
+  {fig:resultado-contador}
 
-\espaciofoto{contador_salida.png}
-{Fotografía de la ejecución real del semáforo contador en la computadora del estudiante}
-{Salida de la parte 2 y comprobación del máximo de tres impresiones simultáneas.}
-{9cm}
+\section{Evidencia de la implementación}
+
+\incluirevidencia{2/contador_codigo_01.png}
+  {Implementación de \texttt{CountingSemaphore}, \texttt{P()} y \texttt{V()}.}
+  {fig:contador-codigo-01}
+
+\incluirevidencia{2/contador_codigo_02.png}
+  {Implementación de \texttt{TareaImpresion} y control del máximo simultáneo.}
+  {fig:contador-codigo-02}
+
+\incluirevidencia{2/contador_codigo_03.png}
+  {Creación de las ocho tareas y ejecución del semáforo contador.}
+  {fig:contador-codigo-03}
 
 \chapter{Comparación y conclusión}
 

@@ -20,13 +20,17 @@
 \setlength{\headheight}{28pt}
 
 % Inserta una captura de código y/o de ejecución.
-% El tercer argumento es la etiqueta que se usa con \autoref{...}.
-\newcommand{\incluirevidencia}[3]{%
+% El tercer argumento es la etiqueta; el argumento opcional controla la altura.
+\newcommand{\incluirevidencia}[4][0.70\textheight]{%
   \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{#1}
-    \caption{#2}
-    \label{#3}
+    \includegraphics[
+      width=0.95\textwidth,
+      height=#1,
+      keepaspectratio
+    ]{#2}
+    \caption{#3}
+    \label{#4}
   \end{figure}%
 }
 
