@@ -1,0 +1,338 @@
+% Reporte de la Actividad 9
+% Semaforo binario y contador
+\documentclass[12pt,oneside]{template/liverpoolthesis}
+\input{template/preamble}
+
+\title{Actividad 9: Semáforo binario y contador}
+\author{%
+  Andrea Hernandez Huerta\\
+  ID: 175523\\[1em]
+  Heriberto Espino Montelongo\\
+  ID: 175199\\[1em]
+  \text{Profesor:} Dr. Victor Giovanni Morales Murillo}
+\faculty{Universidad de las Américas Puebla (UDLAP)}
+\school{Licenciatura en Ciencia de Datos}
+\degree{Curso: Programación Concurrente}
+\date{Fecha de entrega: \today}
+\subject{Semáforo binario y semáforo contador}
+
+\addto\captionsspanish{\renewcommand{\chaptername}{Parte}}
+\providecommand{\figureautorefname}{Figura}
+\addto\captionsspanish{\renewcommand{\figureautorefname}{Figura}}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+
+\chapter{Semáforo binario: cuenta bancaria}
+
+\textbf{Instrucción.} Crear una cuenta bancaria compartida con saldo inicial de
+\$1000 y cinco hilos que realicen depósitos y retiros. Utilizar un semáforo
+binario inicializado en 1. Cada hilo debe solicitar el permiso, consultar y
+modificar el saldo y liberar el permiso. Se debe comprobar que solamente un
+hilo modifique el saldo a la vez y realizar una prueba de escritorio con dos
+hilos.
+
+\section{Entradas}
+
+La cuenta bancaria inicia con un saldo de \$1000. Los cinco hilos comparten la
+misma instancia de \texttt{CuentaBancaria} y la misma instancia de
+\texttt{BinarySemaphore}. El semáforo se crea con \texttt{true}, equivalente
+a un único permiso disponible.
+
+Las operaciones utilizadas en la ejecución son tres depósitos de \$200,
+\$300 y \$50, y dos retiros de \$150 y \$100. Por ello, el saldo final esperado
+es
+\[
+1000+200-150+300-100+50=1300.
+\]
+
+\section{Procesamiento}
+
+La clase \texttt{BinarySemaphore} mantiene una variable booleana
+\texttt{value}. Cuando su valor es \texttt{true}, el permiso está disponible;
+cuando es \texttt{false}, el permiso está ocupado.
+
+La operación \texttt{P()} es un método \texttt{synchronized}. Mientras el
+permiso esté ocupado, el hilo ejecuta \texttt{Util.mywait(this)}. La espera
+libera temporalmente el monitor para permitir que otro hilo ejecute
+\texttt{V()}. Al obtener el permiso, \texttt{P()} cambia el valor a
+\texttt{false}.
+
+La operación \texttt{V()} también es \texttt{synchronized}: cambia el valor a
+\texttt{true} y ejecuta \texttt{notify()} para despertar a uno de los hilos
+bloqueados.
+
+La clase \texttt{CuentaBancaria} no utiliza \texttt{synchronized}; el acceso
+al saldo queda protegido externamente por el semáforo. Cada
+\texttt{OperacionBancaria} ejecuta \texttt{P()} antes de entrar a la sección
+crítica y \texttt{V()} en la sección de salida.
+
+\section{Estructura de clases}
+
+\begin{table}[H]
+\centering
+\caption{Responsabilidad de las clases de la parte 1.}
+\label{tab:clases-binario}
+\begin{tabularx}{\textwidth}{P{3.7cm} L P{2.6cm}}
+\toprule
+\textbf{Clase} & \textbf{Responsabilidad} & \textbf{Uso de synchronized}\\
+\midrule
+Principal & Crea la cuenta, el semáforo y los cinco hilos; utiliza
+\texttt{start()} y \texttt{join()}. & No lo requiere.\\
+\texttt{BinarySemaphore} & Controla el único permiso mediante
+\texttt{P()} y \texttt{V()}. & \texttt{P()} y \texttt{V()} son
+\texttt{synchronized}.\\
+\texttt{CuentaBancaria} & Almacena el saldo y realiza depósitos y retiros. &
+No es necesario si el acceso está protegido por el semáforo.\\
+\texttt{OperacionBancaria} & Define la sección crítica ejecutada por cada
+hilo y utiliza \texttt{P()} antes y \texttt{V()} después de modificar la
+cuenta. & No lo requiere.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Utilidad compartida}
+
+La clase \texttt{Util} concentra las esperas bloqueadas y las pausas usadas
+por ambos ejercicios. Su método \texttt{mywait()} ejecuta \texttt{wait()} sobre
+el monitor recibido y conserva la interrupción del hilo; \texttt{mysleep()}
+permite simular el tiempo de una operación sin convertir la espera en un ciclo
+activo.
+
+\incluirevidencia{Util.png}
+  {Clase Java de utilidades compartidas por ambos ejercicios.}
+  {fig:util}
+
+\section{Conceptos utilizados}
+
+El semáforo binario realiza exclusión mutua porque existe un solo permiso. Si
+un hilo ya lo obtuvo, los demás se bloquean en \texttt{P()} hasta que el hilo
+que se encuentra en la sección crítica ejecute \texttt{V()}. A diferencia de
+la espera activa estudiada con Test-and-Set, la operación de espera utiliza
+\texttt{wait()}, por lo que el hilo bloqueado libera el monitor y no permanece
+consultando continuamente el valor del semáforo.
+
+En las diapositivas, \texttt{P()} corresponde a solicitar un permiso, también
+llamada \texttt{acquire()}, \texttt{wait()} o \texttt{down()}.
+\texttt{V()} corresponde a liberar un permiso, también llamada
+\texttt{release()}, \texttt{signal()} o \texttt{up()}.
+
+\section{Prueba de escritorio}
+
+Para la prueba se consideran dos hilos. El hilo A deposita \$200 y el hilo B
+retira \$150. El semáforo inicia disponible y el saldo inicia en \$1000.
+
+\begin{table}[H]
+\centering
+\caption{Prueba de escritorio del semáforo binario con dos hilos.}
+\label{tab:prueba-binario}
+\begin{tabularx}{\textwidth}{c L c c L}
+\toprule
+\textbf{Paso} & \textbf{Acción} & \textbf{Semáforo} & \textbf{Saldo} &
+\textbf{Resultado}\\
+\midrule
+0 & Estado inicial & 1 & 1000 & Permiso disponible.\\
+1 & Hilo A ejecuta \texttt{P()} & 0 & 1000 & A entra a la sección crítica.\\
+2 & Hilo B ejecuta \texttt{P()} & 0 & 1000 & B se bloquea porque el permiso está ocupado.\\
+3 & A deposita \$200 & 0 & 1200 & Solo A modifica la cuenta.\\
+4 & A ejecuta \texttt{V()} & 1 & 1200 & Se libera el permiso y B es despertado.\\
+5 & B completa \texttt{P()} & 0 & 1200 & B obtiene el permiso.\\
+6 & B retira \$150 & 0 & 1050 & Solo B modifica la cuenta.\\
+7 & B ejecuta \texttt{V()} & 1 & 1050 & El permiso queda disponible.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Salida esperada y comprobación}
+
+El programa muestra cuándo cada hilo entra a la sección crítica, el saldo antes
+y después de la operación y el saldo final. Las cinco operaciones producen un
+saldo esperado de \$1300. La comprobación adicional debe reportar un máximo de
+un hilo modificando el saldo al mismo tiempo.
+
+\incluirevidencia{resultados/1.png}
+  {Ejecución del semáforo binario: saldo final de \$1300 y máximo de un hilo
+   modificando el saldo simultáneamente.}
+  {fig:resultado-binario}
+
+\section{Evidencia de la implementación}
+
+\incluirevidencia{1/binario_codigo_01.png}
+  {Implementación de \texttt{BinarySemaphore}, \texttt{P()} y \texttt{V()}.}
+  {fig:binario-codigo-01}
+
+\incluirevidencia[0.55\textwidth]{1/binario_codigo_02.png}
+  {Implementación de \texttt{OperacionBancaria} y sus datos compartidos.}
+  {fig:binario-codigo-02}
+\vspace{-.5cm}
+\incluirevidencia[0.95\textwidth]{1/binario_codigo_03.png}
+  {Sección crítica de la operación bancaria y actualización del saldo.}
+  {fig:binario-codigo-03}
+
+\incluirevidencia{1/binario_codigo_04.png}
+  {Creación de los cinco hilos y comprobación del semáforo binario.}
+  {fig:binario-codigo-04}
+
+\chapter{Semáforo contador: impresoras}
+
+\textbf{Instrucción.} Simular un laboratorio con tres impresoras y ocho hilos
+que desean imprimir. Utilizar un semáforo contador inicializado en 3. Cada hilo
+debe solicitar una impresora, indicar que comienza a imprimir, esperar un
+tiempo para simular la impresión, indicar que termina y liberar la impresora.
+Se debe verificar que nunca existan más de tres hilos imprimiendo
+simultáneamente y realizar una prueba de escritorio con dos impresoras y cuatro
+hilos.
+
+\section{Entradas}
+
+El recurso está formado por tres impresoras equivalentes. El programa crea un
+semáforo contador con valor inicial 3 y ocho hilos que comparten el mismo
+semáforo. Cada tarea mantiene ocupada una impresora durante un intervalo breve
+para hacer visible la concurrencia en la salida.
+
+\section{Procesamiento}
+
+La clase \texttt{CountingSemaphore} mantiene un entero \texttt{value}, como en
+el pseudocódigo mostrado en clase. En \texttt{P()} se decrementa el valor. Si
+el resultado es negativo, el hilo ejecuta una espera bloqueada. Un valor
+negativo representa que existen hilos esperando un recurso.
+
+En \texttt{V()} se incrementa el valor. Si después del incremento el valor es
+menor o igual que cero, existe al menos un hilo esperando y se ejecuta
+\texttt{notify()} para despertar a uno. Tanto \texttt{P()} como \texttt{V()}
+son métodos \texttt{synchronized}.
+
+Cada hilo solicita una impresora con \texttt{P()}, realiza la simulación de
+impresión y finalmente devuelve el permiso con \texttt{V()}. La pausa usada
+para simular la impresión no constituye el mecanismo de sincronización;
+únicamente representa el tiempo durante el cual el recurso permanece ocupado.
+
+\section{Estructura de clases}
+
+\begin{table}[H]
+\centering
+\caption{Responsabilidad de las clases de la parte 2.}
+\label{tab:clases-contador}
+\begin{tabularx}{\textwidth}{P{3.8cm} L P{2.7cm}}
+\toprule
+\textbf{Clase} & \textbf{Responsabilidad} & \textbf{Uso de synchronized}\\
+\midrule
+Principal & Crea el semáforo con tres permisos y los ocho hilos; utiliza
+\texttt{start()} y \texttt{join()}. & No lo requiere.\\
+\texttt{CountingSemaphore} & Mantiene el número de permisos y controla la
+espera mediante \texttt{P()} y \texttt{V()}. & \texttt{P()} y \texttt{V()}
+son \texttt{synchronized}.\\
+\texttt{TareaImpresion} & Solicita una impresora, simula su utilización y la
+libera al terminar. & No lo requiere.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Prueba de escritorio}
+
+La prueba utiliza dos impresoras y cuatro hilos A, B, C y D. Los dos primeros
+hilos obtienen un recurso. Los siguientes disminuyen el contador por debajo de
+cero y quedan bloqueados. Cuando A y B liberan sus impresoras, C y D son
+despertados de uno en uno.
+
+\begin{table}[H]
+\centering
+\caption{Prueba de escritorio del semáforo contador con dos impresoras y cuatro hilos.}
+\label{tab:prueba-contador}
+\begin{tabularx}{\textwidth}{c L c P{2.0cm} L}
+\toprule
+\textbf{Paso} & \textbf{Acción} & \textbf{Semáforo} & \textbf{Cola} &
+\textbf{Resultado}\\
+\midrule
+0 & Estado inicial & 2 & Vacía & Dos impresoras disponibles.\\
+1 & Hilo A ejecuta \texttt{P()} & 1 & Vacía & A utiliza una impresora.\\
+2 & Hilo B ejecuta \texttt{P()} & 0 & Vacía & B utiliza la otra impresora.\\
+3 & Hilo C ejecuta \texttt{P()} & -1 & C & C se bloquea.\\
+4 & Hilo D ejecuta \texttt{P()} & -2 & C, D & D se bloquea.\\
+5 & Hilo A ejecuta \texttt{V()} & -1 & D & C despierta y utiliza la impresora liberada.\\
+6 & Hilo B ejecuta \texttt{V()} & 0 & Vacía & D despierta y utiliza la impresora liberada.\\
+7 & Hilo C ejecuta \texttt{V()} & 1 & Vacía & Queda una impresora disponible.\\
+8 & Hilo D ejecuta \texttt{V()} & 2 & Vacía & Quedan dos impresoras disponibles.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Salida esperada y comprobación}
+
+La salida identifica cuándo inicia y termina cada hilo y muestra cuántos hilos
+se encuentran imprimiendo. El orden exacto puede cambiar entre ejecuciones
+porque depende de la planificación de los hilos. La propiedad que sí debe
+mantenerse es que el máximo observado nunca sea mayor que 3.
+
+\incluirevidencia{resultados/2.png}
+  {Ejecución del semáforo contador: máximo de tres hilos imprimiendo
+   simultáneamente, igual al límite permitido.}
+  {fig:resultado-contador}
+
+\section{Evidencia de la implementación}
+
+\incluirevidencia{2/contador_codigo_01.png}
+  {Implementación de \texttt{CountingSemaphore}, \texttt{P()} y \texttt{V()}.}
+  {fig:contador-codigo-01}
+
+\incluirevidencia{2/contador_codigo_02.png}
+  {Implementación de \texttt{TareaImpresion} y control del máximo simultáneo.}
+  {fig:contador-codigo-02}
+
+\incluirevidencia{2/contador_codigo_03.png}
+  {Creación de las ocho tareas y ejecución del semáforo contador.}
+  {fig:contador-codigo-03}
+
+\chapter{Comparación y conclusión}
+
+\section{Comparación}
+
+\begin{table}[H]
+\centering
+\caption{Comparación entre semáforo binario y semáforo contador.}
+\label{tab:comparacion}
+\begin{tabularx}{\textwidth}{P{4.0cm} C C}
+\toprule
+\textbf{Aspecto} & \textbf{Semáforo binario} & \textbf{Semáforo contador}\\
+\midrule
+Valor inicial en la actividad & 1 (\texttt{true}) & 3\\
+Permisos disponibles inicialmente & 1 & 3\\
+Recurso controlado & Cuenta bancaria & Tres impresoras\\
+Número máximo de hilos simultáneos & 1 & 3\\
+Cuándo se bloquea un hilo & Cuando el único permiso está ocupado &
+Cuando no queda un permiso disponible\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Conclusión}
+
+Los dos semáforos coordinan hilos mediante permisos, pero representan problemas
+diferentes. El semáforo binario mantiene un solo permiso y por ello se utiliza
+para exclusión mutua sobre un recurso compartido, como el saldo de la cuenta.
+El semáforo contador mantiene varios permisos y permite que una cantidad
+limitada de hilos utilice simultáneamente recursos equivalentes, como las tres
+impresoras.
+
+En ambos casos, \texttt{P()} solicita un permiso y puede bloquear al hilo,
+mientras que \texttt{V()} devuelve un permiso y puede despertar a un hilo que
+espera. La diferencia principal está en la cantidad de permisos que representa
+el semáforo. Las pruebas de escritorio muestran esta diferencia: el semáforo
+binario obliga a que los accesos a la cuenta ocurran uno por uno, mientras que
+el semáforo contador permite hasta tres impresiones concurrentes sin superar el
+número de recursos disponibles.
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Referencias}
+\nocite{*}
+\bibliography{template/references}
+
+\end{document}
