@@ -1,0 +1,192 @@
+% Variante de la Actividad 9 usando java.util.concurrent.Semaphore
+\documentclass[12pt,oneside]{template/liverpoolthesis}
+\input{template/preamble}
+
+\title{Actividad 9: Semáforo binario y contador}
+\author{%
+  Andrea Hernandez Huerta\\
+  ID: 175523\\[1em]
+  Heriberto Espino Montelongo\\
+  ID: 175199\\[1em]
+  \text{Profesor:} Dr. Victor Giovanni Morales Murillo}
+\faculty{Universidad de las Américas Puebla (UDLAP)}
+\school{Licenciatura en Ciencia de Datos}
+\degree{Curso: Programación Concurrente}
+\date{Fecha de entrega: \today}
+\subject{Semáforos con \texttt{java.util.concurrent.Semaphore}}
+
+\addto\captionsspanish{\renewcommand{\chaptername}{Parte}}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+
+\chapter{Semáforo binario: cuenta bancaria}
+
+\textbf{Instrucción.} Crear una cuenta bancaria compartida con saldo inicial de
+\$1000 y cinco hilos que realicen depósitos y retiros. El acceso al saldo debe
+estar protegido por un semáforo binario con un solo permiso.
+
+\section{Entradas y procesamiento}
+
+El programa utiliza un saldo compartido de \$1000 y un objeto de la clase
+\texttt{Semaphore} con un permiso:
+
+\begin{center}
+\texttt{private static final Semaphore sem = new Semaphore(1);}
+\end{center}
+
+El método \texttt{acquire()} solicita el permiso. Si otro hilo ya lo tiene,
+el hilo que intenta entrar queda bloqueado hasta que el permiso sea liberado.
+Al terminar la operación sobre el saldo se utiliza \texttt{release()} para
+devolver el permiso.
+
+Los cinco hilos realizan tres depósitos de \$200, \$300 y \$50, y dos retiros
+de \$150 y \$100. Por lo tanto, el saldo final esperado es
+
+\[
+1000+200-150+300-100+50=1300.
+\]
+
+En esta implementación, \texttt{acquire()} cumple el papel de la operación
+\texttt{P()} estudiada en clase y \texttt{release()} cumple el papel de
+\texttt{V()}.
+
+\section{Prueba de escritorio}
+
+Para observar la exclusión mutua se consideran dos hilos: A deposita \$200 y B
+retira \$150.
+
+\begin{table}[H]
+\centering
+\caption{Prueba de escritorio del semáforo binario.}
+\begin{tabularx}{\textwidth}{c L c L}
+\toprule
+\textbf{Paso} & \textbf{Acción} & \textbf{Permisos} & \textbf{Resultado}\\
+\midrule
+0 & Estado inicial & 1 & El semáforo está disponible.\\
+1 & A ejecuta \texttt{acquire()} & 0 & A obtiene el único permiso.\\
+2 & B ejecuta \texttt{acquire()} & 0 & B queda esperando.\\
+3 & A deposita \$200 & 0 & El saldo cambia de \$1000 a \$1200.\\
+4 & A ejecuta \texttt{release()} & 1 & El permiso queda disponible para B.\\
+5 & B obtiene el permiso & 0 & B entra y retira \$150.\\
+6 & B ejecuta \texttt{release()} & 1 & El semáforo vuelve a quedar disponible.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Evidencia y resultados}
+
+La Figura~\ref{fig:binario} muestra en una sola captura el código utilizado y
+varias ejecuciones del programa. El orden de los hilos cambia entre
+ejecuciones, pero en todos los casos el saldo final mostrado es \$1300. Esto
+confirma que cada hilo obtiene el único permiso antes de modificar la variable
+compartida.
+
+\incluirevidencia[0.82\textheight]{1.png}
+  {Código y resultados del semáforo binario con \texttt{Semaphore(1)}.}
+  {fig:binario}
+
+\chapter{Semáforo contador: impresoras}
+
+\textbf{Instrucción.} Simular tres impresoras compartidas por ocho hilos. El
+semáforo debe permitir como máximo tres impresiones simultáneas.
+
+\section{Entradas y procesamiento}
+
+El programa representa las tres impresoras mediante un semáforo con tres
+permisos:
+
+\begin{center}
+\texttt{private static final Semaphore impresoras = new Semaphore(3);}
+\end{center}
+
+Cada hilo ejecuta \texttt{impresoras.acquire()} antes de imprimir. Los tres
+primeros hilos que obtienen un permiso pueden continuar; si un cuarto hilo
+intenta entrar cuando los tres permisos están ocupados, queda bloqueado.
+
+Después de simular la impresión mediante \texttt{Thread.sleep(1000)}, el hilo
+ejecuta \texttt{impresoras.release()} y devuelve su permiso. De esta forma otro
+hilo que estaba esperando puede comenzar.
+
+\section{Prueba de escritorio}
+
+Para la prueba se consideran dos permisos y cuatro hilos A, B, C y D.
+
+\begin{table}[H]
+\centering
+\caption{Prueba de escritorio del semáforo contador.}
+\begin{tabularx}{\textwidth}{c L c L}
+\toprule
+\textbf{Paso} & \textbf{Acción} & \textbf{Permisos} & \textbf{Resultado}\\
+\midrule
+0 & Estado inicial & 2 & Hay dos impresoras disponibles.\\
+1 & A ejecuta \texttt{acquire()} & 1 & A comienza a imprimir.\\
+2 & B ejecuta \texttt{acquire()} & 0 & B comienza a imprimir.\\
+3 & C ejecuta \texttt{acquire()} & 0 & C queda esperando.\\
+4 & D ejecuta \texttt{acquire()} & 0 & D queda esperando.\\
+5 & A ejecuta \texttt{release()} & 1 & Uno de los hilos bloqueados puede continuar.\\
+6 & C obtiene el permiso & 0 & C comienza a imprimir.\\
+7 & B ejecuta \texttt{release()} & 1 & D puede obtener el siguiente permiso.\\
+8 & C y D terminan & 2 & Los dos permisos vuelven a estar disponibles.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Evidencia y resultados}
+
+La Figura~\ref{fig:contador} muestra el código y varias ejecuciones en la misma
+captura. En la terminal se observa que varios hilos comienzan a imprimir antes
+de que terminen los anteriores, pero el semáforo solo dispone de tres permisos.
+Por ello, como máximo tres hilos pueden encontrarse usando una impresora al
+mismo tiempo. El orden cambia entre ejecuciones porque depende de la
+planificación de los hilos.
+
+\incluirevidencia[0.82\textheight]{2.png}
+  {Código y resultados del semáforo contador con \texttt{Semaphore(3)}.}
+  {fig:contador}
+
+\chapter{Comparación y conclusión}
+
+\section{Comparación}
+
+\begin{table}[H]
+\centering
+\caption{Comparación entre los dos semáforos utilizados.}
+\begin{tabularx}{\textwidth}{P{4.2cm} C C}
+\toprule
+\textbf{Aspecto} & \textbf{Binario} & \textbf{Contador}\\
+\midrule
+Creación & \texttt{new Semaphore(1)} & \texttt{new Semaphore(3)}\\
+Permisos iniciales & 1 & 3\\
+Recurso controlado & Saldo bancario & Tres impresoras\\
+Máximo de hilos simultáneos & 1 & 3\\
+Solicitar permiso & \texttt{acquire()} & \texttt{acquire()}\\
+Liberar permiso & \texttt{release()} & \texttt{release()}\\
+Bloqueo & Cuando el permiso está ocupado & Cuando los tres permisos están ocupados\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Conclusión}
+
+La clase \texttt{Semaphore} de Java permite aplicar directamente el mecanismo
+estudiado en clase. Con un permiso se obtiene exclusión mutua sobre la cuenta
+bancaria; con tres permisos se permite que hasta tres hilos utilicen recursos
+equivalentes de forma concurrente. En ambos ejercicios,
+\texttt{acquire()} solicita un permiso y puede bloquear al hilo, mientras que
+\texttt{release()} devuelve el permiso para que otro hilo pueda continuar.
+
+Los resultados observados coinciden con el comportamiento esperado. En la
+cuenta bancaria el orden de ejecución puede cambiar, pero el saldo final se
+mantiene en \$1300. En el ejercicio de impresoras el orden también varía, pero
+la cantidad de hilos que puede avanzar simultáneamente queda limitada por los
+tres permisos del semáforo.
+
+\end{document}
