@@ -1,0 +1,42 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{estilo}[2026/10/20 Estilo compartido Programacion Concurrente]
+\RequirePackage[spanish,es-nodecimaldot]{babel}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[a4paper,margin=2.6cm]{geometry}
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{amsmath}
+\RequirePackage{hyperref}
+\RequirePackage{xcolor}
+\RequirePackage{microtype}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue}
+\addto\captionsspanish{\renewcommand{\chaptername}{Parte}}
+\setlength{\parskip}{0.35em}
+\newcommand{\portadaActividad}[2]{%
+\begin{titlepage}\centering
+\vspace*{2cm}
+{\Large Universidad de las Américas Puebla\par}
+\vspace{0.5cm}
+{\large Licenciatura en Ciencia de Datos\par}
+\vfill
+{\Huge\bfseries Actividad #1\par}
+\vspace{0.4cm}
+{\LARGE #2\par}
+\vfill
+{\large Andrea Hernández Huerta --- ID 175523\par}
+{\large Heriberto Espino Montelongo --- ID 175199\par}
+\vspace{1cm}
+{\large Programación Concurrente\par}
+{\large Profesor: Dr. Víctor Giovanni Morales Murillo\par}
+\vspace{0.5cm}
+{\large \today\par}
+\end{titlepage}}
+\newcommand{\espacioevidencia}[2]{%
+\begin{figure}[H]\centering
+\IfFileExists{#1}{\includegraphics[width=0.95\linewidth,height=0.65\textheight,keepaspectratio]{#1}}{%
+\fbox{\begin{minipage}[c][4.6cm][c]{0.88\linewidth}\centering
+Captura real pendiente\\[0.6em]\texttt{\detokenize{#1}}
+\end{minipage}}}
+\caption{#2}\end{figure}}
