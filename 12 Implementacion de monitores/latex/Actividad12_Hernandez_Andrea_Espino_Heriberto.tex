@@ -1,0 +1,68 @@
+\documentclass[12pt]{report}
+\usepackage{../../latex_compartido/estilo}
+\begin{document}
+\portadaActividad{12}{Implementación de monitores}
+\tableofcontents
+\listoffigures
+\listoftables
+
+\chapter{Productor--consumidor con monitor}
+\textbf{Instrucción.} Implementar un búfer circular con cinco espacios, dos productores que depositan veinte elementos cada uno y dos consumidores que retiran veinte elementos cada uno. Los métodos \texttt{deposit()} y \texttt{fetch()} deben ser \texttt{synchronized}, usar \texttt{wait()} y \texttt{notifyAll()}, y verificar las condiciones con \texttt{while}.
+
+\section{Entradas y procesamiento}
+El búfer almacena cinco enteros, con \texttt{inBuf}, \texttt{outBuf} y \texttt{cantidad} inicializados en cero. Cada productor genera valores únicos: del 1 al 20 y del 21 al 40. \texttt{deposit()} espera cuando \texttt{cantidad==5}; \texttt{fetch()} espera cuando \texttt{cantidad==0}. Ambos métodos modifican el arreglo bajo el monitor y notifican a los hilos bloqueados.
+
+\section{Prueba de escritorio}
+\begin{table}[H]\centering\caption{Operaciones del búfer (capacidad 5).}
+\begin{tabularx}{\textwidth}{c X c c c X}\toprule
+Paso & Operación & inBuf & outBuf & Cantidad & Estado\\\midrule
+0 & Inicial & 0 & 0 & 0 & Vacío\\
+1 & Depositar 1 & 1 & 0 & 1 & [1, --, --, --, --]\\
+2 & Depositar 2 & 2 & 0 & 2 & [1, 2, --, --, --]\\
+3 & Retirar 1 & 2 & 1 & 1 & [--, 2, --, --, --]\\
+4 & Retirar 2 & 2 & 2 & 0 & Vacío; otro retiro esperaría\\\bottomrule
+\end{tabularx}\end{table}
+
+\section{Resultados}
+Se realizaron diez ejecuciones con pausas aleatorias. Las diez finalizaron; en cada una se verificó que los cuarenta elementos se consumieron exactamente una vez.
+\espacioevidencia{figuras/12_productor_consumidor.png}{Código y salida real del productor--consumidor con monitor.}
+
+\chapter{Filósofos comensales con monitor}
+\textbf{Instrucción.} Implementar cinco hilos filósofos con un monitor, el arreglo de estados PENSANDO, HAMBRIENTO y COMIENDO, un método para solicitar permiso, otro para terminar y \texttt{test(i)} para revisar vecinos. Cada filósofo intenta comer veinte veces.
+
+\section{Entradas y procesamiento}
+El monitor \texttt{Mesa} almacena \texttt{estado[5]} y \texttt{veces[5]}. El método \texttt{pedirComer(i)} cambia el estado a HAMBRIENTO y utiliza \texttt{test(i)}. Mientras no pueda comer ejecuta \texttt{wait()}, que libera el monitor. Al terminar de comer, \texttt{terminarComer(i)} cambia el estado a PENSANDO, incrementa el contador del filósofo, revisa a sus vecinos y ejecuta \texttt{notifyAll()}.
+
+\section{Prueba de escritorio}
+\begin{table}[H]\centering\caption{Ejemplo de dos filósofos vecinos.}
+\begin{tabularx}{\textwidth}{c X X}\toprule
+Paso & Acción & Consecuencia\\\midrule
+1 & Filósofo 0 solicita comer. & Si los vecinos no comen, pasa a COMIENDO.\\
+2 & Filósofo 1 solicita comer. & Queda HAMBRIENTO y espera porque su vecino 0 está comiendo.\\
+3 & Filósofo 0 termina. & Cambia a PENSANDO y ejecuta \texttt{test(1)}.\\
+4 & Filósofo 1 es notificado. & Recomprueba su estado y puede comer.\\\bottomrule
+\end{tabularx}\end{table}
+
+\section{Resultados}
+En diez ejecuciones con pausas aleatorias terminaron los cinco hilos. Todos registraron veinte comidas por filósofo. La exclusión entre vecinos se garantiza mediante la condición de \texttt{test(i)} dentro del monitor.
+\espacioevidencia{figuras/12_filosofos_monitor.png}{Código y salida real de los filósofos con monitor.}
+
+\chapter{Resultados comparados y análisis}
+\begin{table}[H]\centering\caption{Diez ejecuciones verificadas.}
+\begin{tabular}{ccc}\toprule
+Ejecución & Búfer: 40 elementos una vez & Filósofos: 20 comidas c/u\\\midrule
+1 & Sí & Sí\\2 & Sí & Sí\\3 & Sí & Sí\\4 & Sí & Sí\\5 & Sí & Sí\\6 & Sí & Sí\\7 & Sí & Sí\\8 & Sí & Sí\\9 & Sí & Sí\\10 & Sí & Sí\\\bottomrule
+\end{tabular}\end{table}
+
+\textbf{1. ¿Se garantiza exclusión mutua?} Sí. En el búfer, los métodos \texttt{synchronized} impiden que dos hilos modifiquen simultáneamente los índices y la cantidad. En la mesa, el monitor actualiza los estados de forma excluyente y solo deja comer a un filósofo si ninguno de sus vecinos está COMIENDO.
+
+\textbf{2. ¿Puede ocurrir interbloqueo?} Bajo las condiciones normales de estas implementaciones, no. Los productores esperan únicamente si faltan espacios y los consumidores únicamente si faltan elementos; las notificaciones reanudan a los bloqueados. En la mesa, los filósofos no retienen un tenedor mientras esperan otro: el monitor concede directamente el permiso de comer cuando ambos vecinos están libres.
+
+\textbf{3. ¿Puede ocurrir inanición?} La solución del búfer completa el trabajo de estos cuatro hilos en las pruebas. Sin embargo, \texttt{notifyAll()} no garantiza un orden justo de entrada. En el monitor de filósofos, la ausencia de una cola FIFO implica que un filósofo hambriento podría esperar indefinidamente en una ejecución adversa.
+
+\textbf{4. ¿Qué evidencia respalda las respuestas?} Los diez ensayos terminaron, los cuarenta valores fueron retirados una sola vez y cada filósofo registró veinte comidas. Las condiciones de entrada protegidas por \texttt{while} o \texttt{test(i)} explican la exclusión mutua; las pruebas no demuestran por sí solas ausencia absoluta de inanición.
+
+\textbf{5. ¿Qué modificarían si detectaran problemas?} Para evitar inanición podría agregarse una cola FIFO de solicitudes o un turno justo. Los estados y cambios del búfer deben continuar protegidos por el monitor.
+
+\textbf{Conclusión.} Un monitor reúne los datos compartidos y las operaciones protegidas. \texttt{synchronized} proporciona exclusión mutua; \texttt{wait()} suspende hilos cuando la condición no se cumple; y \texttt{notifyAll()} les permite volver a comprobarla. Las diez pruebas completaron la ejecución y confirmaron los resultados esperados, aunque la justicia futura requiere un mecanismo adicional.
+\end{document}

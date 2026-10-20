@@ -1,0 +1,54 @@
+\documentclass[12pt]{report}
+\usepackage{../../latex_compartido/estilo}
+\begin{document}
+\portadaActividad{11}{Problema de los filósofos comensales}
+\tableofcontents
+\listoffigures
+
+\chapter{Versión original y riesgo de interbloqueo}
+\textbf{Instrucción.} Simular cinco filósofos y cinco tenedores mediante semáforos binarios. Cada filósofo piensa, toma primero su tenedor izquierdo, intenta tomar el derecho, come y libera ambos. Observar el riesgo de interbloqueo.
+
+\section{Entradas y procesamiento}
+Cada tenedor se representa mediante \texttt{new Semaphore(1)} y cada filósofo por un hilo. Los índices son circulares: el izquierdo corresponde a \texttt{i} y el derecho a \texttt{(i+1)\%5}. Cada filósofo intenta comer tres veces. El programa incluye una pausa entre la adquisición del primer y segundo tenedor para hacer más visible el problema.
+
+\section{Prueba de escritorio}
+\begin{table}[H]\centering
+\caption{Escenario de interbloqueo de la versión original.}
+\begin{tabularx}{\textwidth}{c X X}\toprule
+Paso & Operación & Resultado\\\midrule
+1 & Los cinco filósofos adquieren su tenedor izquierdo. & Los cinco semáforos quedan sin permisos.\\
+2 & Todos intentan adquirir su tenedor derecho. & Cada derecho está ocupado por su vecino.\\
+3 & Ninguno libera su primer tenedor. & Se forma una espera circular: nadie puede continuar.\\\bottomrule
+\end{tabularx}\end{table}
+
+\section{Evidencia}
+\espacioevidencia{figuras/11_original.png}{Código y ejecución de la versión original.}
+
+\chapter{Versión mejorada}
+\textbf{Instrucción.} Evitar el interbloqueo modificando el orden de adquisición o limitando los filósofos que intentan comer simultáneamente.
+
+\section{Modificación aplicada}
+En la versión mejorada el filósofo 0 adquiere \textbf{primero el tenedor derecho} y luego el izquierdo. Los otros cuatro mantienen el orden original. No se necesitan nuevas clases ni semáforos: solo cambia el orden de dos adquisiciones, lo que rompe la posibilidad de que los cinco mantengan un tenedor mientras esperan circularmente el otro.
+
+\section{Resultados de las pruebas}
+Se ejecutaron cinco veces ambas versiones desde la terminal. La versión original dejó cinco hilos pendientes en cada prueba; la modificada terminó con cero pendientes en las cinco ejecuciones.
+\begin{table}[H]\centering\caption{Comparación de cinco ejecuciones por versión.}
+\begin{tabular}{ccc}\toprule
+Prueba & Original: pendientes & Mejorada: pendientes\\\midrule
+1&5&0\\2&5&0\\3&5&0\\4&5&0\\5&5&0\\\bottomrule
+\end{tabular}\end{table}
+\espacioevidencia{figuras/11_mejorada.png}{Código y ejecución de la versión mejorada.}
+
+\chapter{Preguntas de análisis y conclusión}
+\textbf{1. ¿Cómo se produjo o podría producirse el interbloqueo?} Si todos adquieren primero un tenedor y esperan por el siguiente, cada tenedor requerido está retenido por otro filósofo. Nadie puede soltar el suyo porque todos están bloqueados en la segunda adquisición.
+
+\textbf{2. ¿Qué modificación implementaron?} El filósofo 0 toma primero el tenedor derecho. Los demás toman primero el izquierdo.
+
+\textbf{3. ¿Por qué evita el interbloqueo?} Se rompe la espera circular: ya no es posible que los cinco filósofos retengan simultáneamente su primer tenedor bajo el mismo patrón circular.
+
+\textbf{4. ¿Evitar interbloqueo también evita inanición?} No. Aunque el sistema siga avanzando, un filósofo podría obtener los tenedores con mucha menor frecuencia si otros se adelantan continuamente.
+
+\textbf{5. ¿Cómo podría evitarse la inanición?} Se puede implementar una cola explícita de solicitudes con turnos justos, atendiendo a los filósofos hambrientos sin adelantar indefinidamente a los que llevan más tiempo esperando.
+
+\textbf{Conclusión.} El interbloqueo no depende de que existan errores de lectura o escritura: puede producirse por el orden de adquisición de varios recursos. Cambiar el orden de uno de los filósofos elimina la espera circular, aunque la justicia entre hilos requiere un mecanismo adicional.
+\end{document}
