@@ -1,0 +1,51 @@
+name: Compilar reportes LaTeX
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '11 Problema de los filosofos comensales/*.tex'
+      - '12 Implementacion de monitores/*.tex'
+      - 'latex_compartido/**'
+      - '.github/workflows/compilar-actividades.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compilar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener repositorio
+        uses: actions/checkout@v4
+
+      - name: Compilar Actividad 11
+        uses: xu-cheng/latex-action@v4
+        with:
+          working_directory: 11 Problema de los filosofos comensales
+          root_file: Actividad11_Hernandez_Andrea_Espino_Heriberto.tex
+          args: -pdf -interaction=nonstopmode -halt-on-error -outdir=build
+
+      - name: Compilar Actividad 12
+        uses: xu-cheng/latex-action@v4
+        with:
+          working_directory: 12 Implementacion de monitores
+          root_file: Actividad12_Hernandez_Andrea_Espino_Heriberto.tex
+          args: -pdf -interaction=nonstopmode -halt-on-error -outdir=build
+
+      - name: Guardar PDF y archivos build con Git
+        shell: bash
+        run: |
+          cp '11 Problema de los filosofos comensales/build/Actividad11_Hernandez_Andrea_Espino_Heriberto.pdf' '11 Problema de los filosofos comensales/'
+          cp '12 Implementacion de monitores/build/Actividad12_Hernandez_Andrea_Espino_Heriberto.pdf' '12 Implementacion de monitores/'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f '11 Problema de los filosofos comensales/Actividad11_Hernandez_Andrea_Espino_Heriberto.pdf'
+          git add -f '12 Implementacion de monitores/Actividad12_Hernandez_Andrea_Espino_Heriberto.pdf'
+          git add -f '11 Problema de los filosofos comensales/build/'
+          git add -f '12 Implementacion de monitores/build/'
+          if ! git diff --cached --quiet; then
+            git commit -m 'build: versionar reportes 11 y 12 y sus auxiliares'
+            git push
+          fi
