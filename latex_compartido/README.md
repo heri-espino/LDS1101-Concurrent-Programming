@@ -1,22 +1,32 @@
 # Plantilla LaTeX compartida
 
-El formato común vive una sola vez en `latex_compartido/estilo.sty`.
+Los reportes 11 y 12 reutilizan el **formato institucional** de la actividad 10: portada con logo UDLAP, tipografía, márgenes y estilos de títulos. Los archivos están aquí:
 
-En cada actividad nueva se guardan únicamente su archivo .tex y sus evidencias en figuras/.
+- `estilo.sty`: comandos y formato compartidos.
+- `logo.png`: imagen institucional usada por ambas portadas.
 
-Desde la carpeta latex:
+Así no se repite una carpeta `template/` por actividad.
 
-```bash
-mkdir -p build
-xelatex -interaction=nonstopmode -halt-on-error -output-directory=build ActividadNN.tex
-xelatex -interaction=nonstopmode -halt-on-error -output-directory=build ActividadNN.tex
-```
+## Estructura y compilación
 
-El archivo debe comenzar con:
+Cada carpeta de actividad 11 y 12 contiene directamente sus `.java`, `*_ultracommented.java`, `.tex`, `.pdf`, `build/` y sus instrucciones `readme.md`.
+
+El inicio de cada reporte es:
 
 ```latex
-\documentclass[12pt]{report}
-\usepackage{../../latex_compartido/estilo}
+\documentclass[12pt,oneside]{book}
+\usepackage{../latex_compartido/estilo}
 ```
 
-Las capturas se cargan desde figuras/. Si faltan, el reporte reserva el espacio sin inventar una captura. Los reportes antiguos mantienen sus plantillas para preservar compatibilidad.
+**Compila desde la carpeta de la actividad**, no desde `latex_compartido`. Por ejemplo, en la actividad 11:
+
+```bash
+latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build Actividad11_Hernandez_Andrea_Espino_Heriberto.tex
+cp build/Actividad11_Hernandez_Andrea_Espino_Heriberto.pdf .
+```
+
+Necesitas MacTeX o TeX Live con `latexmk` y los paquetes usados en `estilo.sty` (incluidos `libertine` y `newtxmath`). La compilación genera auxiliares en `build/` y el PDF final se copia a la carpeta de la actividad.
+
+Al subir cambios de cualquiera de los dos reportes `.tex` a `main`, **GitHub Actions** recompila ambos PDF y versiona los resultados, incluidos los auxiliares. Las capturas de ejecuciones deben ser reales; el documento muestra un espacio reservado cuando no se han agregado.
+
+Los reportes más antiguos conservan sus plantillas originales para no modificar entregas anteriores.
