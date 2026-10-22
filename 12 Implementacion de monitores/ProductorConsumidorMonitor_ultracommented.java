@@ -1,5 +1,5 @@
 // version explicada: el programa es igual al de code/java
-public class ProductorConsumidorMonitor {
+public class ProductorConsumidorMonitor_ultracommented {
     // el monitor controla el buffer completo
     static class Buffer {
         private final int[] datos = new int[5];

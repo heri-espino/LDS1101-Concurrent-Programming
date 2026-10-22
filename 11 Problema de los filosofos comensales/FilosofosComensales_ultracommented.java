@@ -2,7 +2,7 @@
 // importa la clase que administra permisos
 import java.util.concurrent.Semaphore;
 
-public class FilosofosComensales {
+public class FilosofosComensales_ultracommented {
     static final int N = 5;
     static final int VECES = 3;
     static final Semaphore[] tenedores = new Semaphore[N];

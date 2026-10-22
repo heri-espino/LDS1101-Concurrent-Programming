@@ -1,9 +1,12 @@
-\documentclass[12pt]{report}
-\usepackage{../../latex_compartido/estilo}
+\documentclass[12pt,oneside]{book}
+\usepackage{../latex_compartido/estilo}
 \begin{document}
 \portadaActividad{11}{Problema de los filósofos comensales}
+\frontmatter
 \tableofcontents
 \listoffigures
+\listoftables
+\mainmatter
 
 \chapter{Versión original y riesgo de interbloqueo}
 \textbf{Instrucción.} Simular cinco filósofos y cinco tenedores mediante semáforos binarios. Cada filósofo piensa, toma primero su tenedor izquierdo, intenta tomar el derecho, come y libera ambos. Observar el riesgo de interbloqueo.

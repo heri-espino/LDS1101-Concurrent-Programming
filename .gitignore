@@ -36,3 +36,9 @@ cachegrind.out.*
 
 # Archivos compilados de Java
 *.class
+
+# permitir archivos generados en build de las actividades nuevas
+!11 Problema de los filosofos comensales/build/
+!11 Problema de los filosofos comensales/build/**
+!12 Implementacion de monitores/build/
+!12 Implementacion de monitores/build/**

@@ -1,5 +1,5 @@
 // version explicada: el programa es igual al de code/java
-public class FilosofosMonitor {
+public class FilosofosMonitor_ultracommented {
     static class Mesa {
         private final String[] estado = new String[5];
         private final int[] veces = new int[5];
