@@ -6,4 +6,4 @@
 \contentsline {chapter}{\numberline {2}Versión mejorada}{3}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Modificación aplicada}{3}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Resultados de las pruebas}{3}{section.2.2}%
-\contentsline {chapter}{\numberline {3}Preguntas de análisis y conclusión}{5}{chapter.3}%
+\contentsline {chapter}{\numberline {3}Preguntas de análisis y conclusión}{6}{chapter.3}%

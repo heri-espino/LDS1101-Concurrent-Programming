@@ -1,7 +1,8 @@
 \babel@toc {spanish}{}\relax 
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {1.1}{\ignorespaces Operaciones del búfer (capacidad 5).}}{2}{table.caption.5}%
+\contentsline {table}{\numberline {1.1}{\ignorespaces Operaciones del búfer (capacidad 5).}}{1}{table.caption.4}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {2.1}{\ignorespaces Ejemplo de dos filósofos vecinos.}}{5}{table.caption.7}%
+\contentsline {table}{\numberline {2.1}{\ignorespaces Ejemplo de dos filósofos vecinos.}}{4}{table.caption.6}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Diez ejecuciones verificadas.}}{6}{table.caption.9}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Resultados del productor--consumidor en diez ejecuciones.}}{6}{table.caption.8}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Resultados de los filósofos en diez ejecuciones.}}{6}{table.caption.9}%

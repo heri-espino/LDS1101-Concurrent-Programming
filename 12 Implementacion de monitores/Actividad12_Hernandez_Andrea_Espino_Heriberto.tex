@@ -7,7 +7,6 @@
 \listoffigures
 \listoftables
 \mainmatter
-\listoftables
 
 \chapter{Productor--consumidor con monitor}
 \textbf{Instrucción.} Implementar un búfer circular con cinco espacios, dos productores que depositan veinte elementos cada uno y dos consumidores que retiran veinte elementos cada uno. Los métodos \texttt{deposit()} y \texttt{fetch()} deben ser \texttt{synchronized}, usar \texttt{wait()} y \texttt{notifyAll()}, y verificar las condiciones con \texttt{while}.
@@ -28,7 +27,7 @@ Paso & Operación & inBuf & outBuf & Cantidad & Estado\\\midrule
 
 \section{Resultados}
 Se realizaron diez ejecuciones con pausas aleatorias. Las diez finalizaron; en cada una se verificó que los cuarenta elementos se consumieron exactamente una vez.
-\espacioevidencia{figuras/12_productor_consumidor.png}{Código y salida real del productor--consumidor con monitor.}
+\espacioevidencia{captura_productor_consumidor.png}{Código y salida real del productor--consumidor con monitor.}
 
 \chapter{Filósofos comensales con monitor}
 \textbf{Instrucción.} Implementar cinco hilos filósofos con un monitor, el arreglo de estados PENSANDO, HAMBRIENTO y COMIENDO, un método para solicitar permiso, otro para terminar y \texttt{test(i)} para revisar vecinos. Cada filósofo intenta comer veinte veces.
@@ -48,14 +47,32 @@ Paso & Acción & Consecuencia\\\midrule
 
 \section{Resultados}
 En diez ejecuciones con pausas aleatorias terminaron los cinco hilos. Todos registraron veinte comidas por filósofo. La exclusión entre vecinos se garantiza mediante la condición de \texttt{test(i)} dentro del monitor.
-\espacioevidencia{figuras/12_filosofos_monitor.png}{Código y salida real de los filósofos con monitor.}
+\espacioevidencia{captura_filosofos_monitor.png}{Código y salida real de los filósofos con monitor.}
 
 \chapter{Resultados comparados y análisis}
-\begin{table}[H]\centering\caption{Diez ejecuciones verificadas.}
-\begin{tabular}{ccc}\toprule
-Ejecución & Búfer: 40 elementos una vez & Filósofos: 20 comidas c/u\\\midrule
-1 & Sí & Sí\\2 & Sí & Sí\\3 & Sí & Sí\\4 & Sí & Sí\\5 & Sí & Sí\\6 & Sí & Sí\\7 & Sí & Sí\\8 & Sí & Sí\\9 & Sí & Sí\\10 & Sí & Sí\\\bottomrule
-\end{tabular}\end{table}
+\begin{table}[H]\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\caption{Resultados del productor--consumidor en diez ejecuciones.}
+\begin{tabular}{cccc}\toprule
+Ejecución & ¿Terminó? & ¿Acceso incorrecto? & ¿Hilo detenido?\\\midrule
+1 & Sí & No & No\\2 & Sí & No & No\\3 & Sí & No & No\\4 & Sí & No & No\\5 & Sí & No & No\\
+6 & Sí & No & No\\7 & Sí & No & No\\8 & Sí & No & No\\9 & Sí & No & No\\10 & Sí & No & No\\\bottomrule
+\end{tabular}
+
+\medskip
+En las diez pruebas, los 40 elementos se consumieron exactamente una vez.
+\end{table}
+
+\begin{table}[H]\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\caption{Resultados de los filósofos en diez ejecuciones.}
+\begin{tabular}{cccc}\toprule
+Ejecución & ¿Terminó? & ¿Acceso incorrecto? & ¿Hilo detenido?\\\midrule
+1 & Sí & No & No\\2 & Sí & No & No\\3 & Sí & No & No\\4 & Sí & No & No\\5 & Sí & No & No\\
+6 & Sí & No & No\\7 & Sí & No & No\\8 & Sí & No & No\\9 & Sí & No & No\\10 & Sí & No & No\\\bottomrule
+\end{tabular}
+
+\medskip
+En las diez pruebas, cada filósofo completó sus 20 comidas.
+\end{table}
 
 \textbf{1. ¿Se garantiza exclusión mutua?} Sí. En el búfer, los métodos \texttt{synchronized} impiden que dos hilos modifiquen simultáneamente los índices y la cantidad. En la mesa, el monitor actualiza los estados de forma excluyente y solo deja comer a un filósofo si ninguno de sus vecinos está COMIENDO.
 

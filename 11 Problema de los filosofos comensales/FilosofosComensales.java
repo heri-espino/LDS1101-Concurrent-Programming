@@ -56,3 +56,4 @@ public class FilosofosComensales {
         if (pendientes > 0) System.out.println("Posible interbloqueo: revisar los tenedores");
     }
 }
+›
