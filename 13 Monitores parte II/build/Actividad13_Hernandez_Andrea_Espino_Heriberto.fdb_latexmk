@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1792908965.84932 "Actividad13_Hernandez_Andrea_Espino_Heriberto.tex" "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.pdf" "Actividad13_Hernandez_Andrea_Espino_Heriberto" 1792908966.76731 0
-  "../latex_compartido/estilo.sty" 1792908873.88201 2882 d1712d91b79415b5d986aa45a6b9dc24 ""
-  "../latex_compartido/logo.png" 1792908873.88201 9165 4633f9bff2217765d6ace43419e3b13b ""
+["pdflatex"] 1792909099.59309 "Actividad13_Hernandez_Andrea_Espino_Heriberto.tex" "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.pdf" "Actividad13_Hernandez_Andrea_Espino_Heriberto" 1792909100.39837 0
+  "../latex_compartido/estilo.sty" 1792909018.7728 2882 d1712d91b79415b5d986aa45a6b9dc24 ""
+  "../latex_compartido/logo.png" 1792909018.7728 9165 4633f9bff2217765d6ace43419e3b13b ""
   "/opt/texlive/texdir/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-4.enc" 1558214095 7693 0f2dce6d313c82989ec3a67fc24df2a0 ""
   "/opt/texlive/texdir/texmf-dist/fonts/enc/dvips/libertine/lbtn_76gpa5.enc" 1490131464 2933 9ad527ce78d7c5fa0a642dead095f172 ""
   "/opt/texlive/texdir/texmf-dist/fonts/enc/dvips/libertine/lbtn_7grukw.enc" 1490131464 2934 a4a9158faed2e9e89c771b4e3b7fc12f ""
@@ -137,12 +137,12 @@
   "/opt/texlive/texdir/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1790873945 5609345 1b2b3adc34073d267b8a5f51210ec97d ""
   "/opt/texlive/texdir/texmf-var/web2c/pdftex/pdflatex.fmt" 1790873998 3668356 0ddcaf1aa60edaf799737828f6537715 ""
   "/opt/texlive/texdir/texmf.cnf" 1790873936 555 bd60ff59e4d560b42d96b004436f91d3 ""
-  "Actividad13_Hernandez_Andrea_Espino_Heriberto.tex" 1792908873.87948 8971 a2b019399bab6032163231e0ece5c5f7 ""
-  "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.aux" 1792908966.63868 4958 ca2ede2618940502e801456059dc628b "pdflatex"
-  "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.lof" 1792908966.64068 832 cebcaea8d83646e6890afbbc4e286da8 "pdflatex"
-  "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.lot" 1792908966.64068 785 cbf9f077d867854f5240514226539940 "pdflatex"
-  "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.out" 1792908966.64068 3048 207e02f4fd18ae6d75fc391f1a51c676 "pdflatex"
-  "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.toc" 1792908966.64068 1620 f5af730f503f38e7680c6c26003e25c7 "pdflatex"
+  "Actividad13_Hernandez_Andrea_Espino_Heriberto.tex" 1792909018.7711 8971 a0c34b406a56a64c84d18202104203b3 ""
+  "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.aux" 1792909100.27928 4958 ca2ede2618940502e801456059dc628b "pdflatex"
+  "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.lof" 1792909100.28028 832 cebcaea8d83646e6890afbbc4e286da8 "pdflatex"
+  "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.lot" 1792909100.28028 785 cbf9f077d867854f5240514226539940 "pdflatex"
+  "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.out" 1792909100.28028 3048 207e02f4fd18ae6d75fc391f1a51c676 "pdflatex"
+  "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.toc" 1792909100.28028 1620 f5af730f503f38e7680c6c26003e25c7 "pdflatex"
   (generated)
   "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.aux"
   "build/Actividad13_Hernandez_Andrea_Espino_Heriberto.lof"
