@@ -3,21 +3,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ColaEnlazada {
-    static class Nodo {
+    static class Node {
         String dato;
-        Nodo siguiente;
+        Node siguiente;
 
-        Nodo(String dato) {
+        Node(String dato) {
             this.dato = dato;
         }
     }
 
     static class Cola {
-        private Nodo head;
-        private Nodo tail;
+        private Node head;
+        private Node tail;
 
         public synchronized void enqueue(String dato) {
-            Nodo nuevo = new Nodo(dato);
+            Node nuevo = new Node(dato);
             if (tail == null) head = nuevo;
             else tail.siguiente = nuevo;
             tail = nuevo;

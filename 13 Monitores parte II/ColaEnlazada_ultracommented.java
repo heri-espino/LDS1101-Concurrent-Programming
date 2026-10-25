@@ -6,12 +6,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ColaEnlazada_ultracommented {
-    static class Nodo {
+    static class Node {
         // este atributo guarda el elemento depositado
         String dato;
-        Nodo siguiente;
+        Node siguiente;
 
-        Nodo(String dato) {
+        Node(String dato) {
             // guarda el elemento recibido en el nodo
             this.dato = dato;
         }
@@ -19,12 +19,12 @@ public class ColaEnlazada_ultracommented {
 
     // la cola es el recurso compartido y funciona como monitor
     static class Cola {
-        private Nodo head;
-        private Nodo tail;
+        private Node head;
+        private Node tail;
 
         // solo un hilo a la vez puede insertar y cambiar los enlaces
         public synchronized void enqueue(String dato) {
-            Nodo nuevo = new Nodo(dato);
+            Node nuevo = new Node(dato);
             // si no hay ultimo nodo entonces la cola estaba vacia
             if (tail == null) head = nuevo;
             // si habia nodos conectamos el ultimo con el nuevo
