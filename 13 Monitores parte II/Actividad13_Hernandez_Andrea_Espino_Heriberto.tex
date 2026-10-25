@@ -1,0 +1,135 @@
+\documentclass[12pt,oneside]{book}
+\usepackage{../latex_compartido/estilo}
+\renewcommand{\fechaEntregaActividad}{25 de octubre de 2026}
+\begin{document}
+\portadaActividad{13}{Monitores en Java}
+\frontmatter
+\tableofcontents
+\listoffigures
+\listoftables
+\mainmatter
+
+\chapter{Cola compartida con lista enlazada}
+\textbf{Instrucción.} Implementar una cola enlazada compartida con \texttt{Nodo}, \texttt{head}, \texttt{tail}, \texttt{enqueue()} y \texttt{dequeue()} sincronizados. Dos productores generan elementos identificados por su nombre y dos consumidores los retiran sin duplicaciones ni pérdidas.
+
+\section{Entradas}
+Se utilizan dos productores y dos consumidores. Para la prueba, cada productor inserta quince elementos (\texttt{P1-1} a \texttt{P1-15}, y \texttt{P2-1} a \texttt{P2-15}). Los consumidores retiran quince elementos cada uno, para un total de treinta.
+
+\section{Procesamiento}
+El monitor es el objeto \texttt{Cola}. \texttt{enqueue()} crea un nodo, actualiza \texttt{head} y \texttt{tail} y llama a \texttt{notifyAll()}. En \texttt{dequeue()}, el ciclo \texttt{while (head == null)} ejecuta \texttt{wait()} si la cola está vacía. Cuando hay un elemento, se retira el primero y se actualizan los enlaces. \texttt{synchronized} impide dos modificaciones simultáneas de la lista.
+
+\section{Salidas y verificación}
+Cada inserción y retirada muestra su identificador. Al finalizar, el programa comprueba que estén presentes los treinta identificadores distintos y muestra \texttt{Sin perdidas ni duplicados: true}. La comprobación no depende del orden en el que el sistema programe los hilos.
+
+\espacioevidencia{captura_cola.png}{Código y salida del programa de cola enlazada; colocar una captura real.}
+
+\chapter{Formas de utilizar \texttt{synchronized}}
+\textbf{Instrucción.} Comparar un método de instancia sincronizado, un bloque \texttt{synchronized(this)} y un método \texttt{static synchronized} para reservar boletos de dos eventos.
+
+\section{Entradas y procesamiento}
+Se simulan un concierto y un teatro con seis boletos disponibles cada uno. Diez hilos intentan reservar boletos para cada evento, por lo que como máximo se venden doce boletos.
+
+\begin{table}[H]\centering
+\caption{Objetos y monitores utilizados en la venta de boletos.}
+\begin{tabularx}{\textwidth}{P{4.3cm} L}
+\toprule
+\textbf{Forma de sincronización} & \textbf{Dato y cerrojo protegidos}\\\midrule
+Método de instancia \texttt{synchronized} & El monitor del objeto \texttt{concierto} protege sus boletos disponibles durante todo el método.\\
+Bloque \texttt{synchronized(this)} & El monitor del objeto \texttt{teatro} protege solamente las instrucciones del bloque de reserva.\\
+Método \texttt{static synchronized} & El monitor \texttt{Evento.class} protege el contador de ventas compartido entre eventos.\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Salidas}
+La cantidad de boletos nunca se vuelve negativa y la suma de ventas corresponde a ambos eventos. En esta prueba se esperan cero boletos restantes por evento y doce ventas totales.
+
+\espacioevidencia{captura_boletos.png}{Código y salida de las tres formas de sincronización.}
+
+\chapter{Interbloqueo entre monitores}
+\textbf{Instrucción.} Crear dos objetos \texttt{Cell}, \texttt{p} y \texttt{q}, y ejecutar simultáneamente \texttt{p.swap(q)} y \texttt{q.swap(p)}. Introducir una pausa al obtener el primer monitor y explicar el interbloqueo.
+
+\section{Entradas y procesamiento}
+Los valores iniciales son \texttt{p = 10} y \texttt{q = 20}. Cada \texttt{swap()} es sincronizado, así que el hilo adquiere primero el monitor del objeto receptor. Luego intenta obtener el monitor del otro objeto. Se añade una pausa y una barrera de dos hilos para mostrar de manera reproducible la espera circular.
+
+\section{Prueba de escritorio}
+\begin{table}[H]\centering
+\caption{Secuencia que produce interbloqueo.}
+\begin{tabularx}{\textwidth}{c P{2.2cm} L L L}
+\toprule
+Paso & Hilo & Operación & Monitor que posee & Monitor que espera\\\midrule
+1 & A & \texttt{p.swap(q)} & \texttt{p} & Ninguno\\
+2 & B & \texttt{q.swap(p)} & \texttt{q} & Ninguno\\
+3 & A & Intenta entrar en \texttt{q} & \texttt{p} & \texttt{q}\\
+4 & B & Intenta entrar en \texttt{p} & \texttt{q} & \texttt{p}\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Resultado}
+Ningún hilo puede adquirir su segundo monitor, porque el otro lo conserva. El programa usa hilos \textit{daemon} y espera un tiempo limitado para detectar la situación sin dejar abierta la demostración; \textbf{esto no resuelve el interbloqueo}.
+
+\espacioevidencia{captura_interbloqueo.png}{Código y evidencia real del interbloqueo.}
+
+\chapter{Solución del interbloqueo}
+\textbf{Instrucción.} Corregir la adquisición de monitores usando \texttt{System.identityHashCode()} y ejecutar de nuevo los dos intercambios.
+
+\section{Modificación}
+En lugar de adquirir primero el monitor propio, los dos hilos calculan el código de identidad de \texttt{p} y \texttt{q} y toman ambos monitores \textbf{en el mismo orden}: primero el de código menor y después el de código mayor. Una vez obtenidos, el objeto de código menor ejecuta \texttt{doSwap()}.
+
+También se contempla el caso poco frecuente de códigos iguales utilizando un monitor adicional de desempate. Así, tampoco se forma una espera circular en ese caso.
+
+\section{Prueba de escritorio}
+Si el código de \texttt{p} es menor, tanto A como B solicitan primero \texttt{p}, luego \texttt{q}. A puede conseguir ambos monitores mientras B espera \texttt{p}. A los libera al terminar; entonces B obtiene ambos. Se realizan dos intercambios y los valores regresan a \texttt{p = 10} y \texttt{q = 20}.
+
+\section{Comparación}
+\begin{table}[H]\centering
+\caption{Comparación entre los dos programas de intercambio.}
+\begin{tabularx}{\textwidth}{P{4.1cm} L L}
+\toprule
+\textbf{Aspecto} & \textbf{Sin orden} & \textbf{Con orden fijo}\\\midrule
+Primer monitor & Cada hilo toma el suyo & Ambos usan el de código menor\\
+Espera circular & Posible y demostrada & Evitada por el mismo orden\\
+Fin de los dos hilos & Pueden quedar bloqueados & Terminan normalmente\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\espacioevidencia{captura_solucion.png}{Código y salida real del intercambio sin interbloqueo.}
+
+\chapter{Métodos adicionales de \texttt{Thread}}
+\textbf{Instrucción.} Mostrar \texttt{interrupt()}, \texttt{yield()} y \texttt{holdsLock()} mediante ejemplos cortos.
+
+\section{Entradas y procesamiento}
+\begin{table}[H]\centering
+\caption{Función de cada método adicional.}
+\begin{tabularx}{\textwidth}{P{3.4cm} L}
+\toprule
+\textbf{Método} & \textbf{Descripción y observación}\\\midrule
+\texttt{interrupt()} & Interrumpe un hilo que está en \texttt{sleep()}; aparece el mensaje de interrupción al capturar \texttt{InterruptedException}.\\
+\texttt{Thread.yield()} & Sugiere ceder el procesador. No obliga al planificador ni garantiza un orden específico.\\
+\texttt{Thread.holdsLock(objeto)} & Devuelve \texttt{false} fuera de \texttt{synchronized(objeto)} y \texttt{true} dentro, en el hilo actual.\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\espacioevidencia{captura_thread.png}{Código y salida de los métodos adicionales de Thread.}
+
+\chapter{Pruebas y conclusión}
+\section{Verificación}
+Cada programa se ejecuta cinco veces mediante el flujo de pruebas del repositorio. Se comprueban las propiedades concretas indicadas a continuación; la secuencia de mensajes entre hilos puede cambiar de una ejecución a otra.
+
+\begin{table}[H]\centering
+\caption{Comprobaciones automáticas de las cinco ejecuciones por programa.}
+\begin{tabularx}{\textwidth}{P{4.0cm} L}
+\toprule
+\textbf{Programa} & \textbf{Condición comprobada}\\\midrule
+Cola enlazada & Los treinta elementos aparecen exactamente una vez al retirarlos.\\
+Venta de boletos & Ningún evento vende más de seis entradas; se realizan doce ventas.\\
+Interbloqueo & Los dos hilos permanecen bloqueados en la demostración.\\
+Solución ordenada & Ambos hilos terminan y los dos intercambios restauran los valores originales.\\
+Métodos de \texttt{Thread} & Se observa la interrupción, la ejecución con \texttt{yield()} y los dos valores de \texttt{holdsLock()}.\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Conclusión}
+Los monitores proporcionan exclusión mutua sobre objetos compartidos, mientras que \texttt{wait()} y \texttt{notifyAll()} coordinan la espera cuando una condición todavía no se cumple. Los métodos de instancia sincronizados y los bloques \texttt{synchronized(this)} adquieren el monitor del objeto; un método \texttt{static synchronized} utiliza el de la clase.
+
+Un monitor por sí solo no evita todos los interbloqueos: adquirir varios monitores en distinto orden puede crear una espera circular. Establecer el mismo orden para todos los hilos evita esa situación. Finalmente, \texttt{interrupt()}, \texttt{yield()} y \texttt{holdsLock()} permiten observar otras operaciones propias de los hilos en Java.
+\end{document}

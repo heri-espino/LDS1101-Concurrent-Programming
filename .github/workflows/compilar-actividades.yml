@@ -6,6 +6,8 @@ on:
     paths:
       - '11 Problema de los filosofos comensales/*.tex'
       - '12 Implementacion de monitores/*.tex'
+      - '13 Monitores parte II/*.tex'
+      - '13 Monitores parte II/*.java'
       - 'latex_compartido/**'
       - '.github/workflows/compilar-actividades.yml'
   workflow_dispatch:
@@ -19,6 +21,34 @@ jobs:
     steps:
       - name: Obtener repositorio
         uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Probar cinco veces los programas de la Actividad 13
+        shell: bash
+        run: |
+          cd '13 Monitores parte II'
+          javac *.java
+          for i in 1 2 3 4 5; do
+            timeout 12s java ColaEnlazada > /tmp/cola.txt
+            grep -q 'Sin perdidas ni duplicados: true' /tmp/cola.txt
+            timeout 12s java VentaBoletos > /tmp/boletos.txt
+            grep -q 'Ventas totales: 12' /tmp/boletos.txt
+            timeout 12s java Interbloqueo > /tmp/interbloqueo.txt
+            grep -q 'Interbloqueo detectado: true' /tmp/interbloqueo.txt
+            timeout 12s java InterbloqueoSolucion > /tmp/solucion.txt
+            grep -q 'Ambos hilos terminaron: true' /tmp/solucion.txt
+            grep -q 'Valores finales: p=10, q=20' /tmp/solucion.txt
+            timeout 12s java MetodosThread > /tmp/thread.txt
+            grep -q 'interrupt(): interrumpio el sleep' /tmp/thread.txt
+            grep -q 'holdsLock() fuera: false' /tmp/thread.txt
+            grep -q 'holdsLock() dentro: true' /tmp/thread.txt
+            echo "Ejecucion $i: las cinco pruebas pasaron"
+          done
 
       - name: Compilar Actividad 11
         uses: xu-cheng/latex-action@v4
@@ -34,15 +64,25 @@ jobs:
           root_file: Actividad12_Hernandez_Andrea_Espino_Heriberto.tex
           args: -pdf -interaction=nonstopmode -halt-on-error -outdir=build
 
+      - name: Compilar Actividad 13
+        uses: xu-cheng/latex-action@v4
+        with:
+          working_directory: 13 Monitores parte II
+          root_file: Actividad13_Hernandez_Andrea_Espino_Heriberto.tex
+          args: -pdf -interaction=nonstopmode -halt-on-error -outdir=build
+
       - name: Guardar PDF y archivos build con Git
         shell: bash
         run: |
           cp '11 Problema de los filosofos comensales/build/Actividad11_Hernandez_Andrea_Espino_Heriberto.pdf' '11 Problema de los filosofos comensales/'
           cp '12 Implementacion de monitores/build/Actividad12_Hernandez_Andrea_Espino_Heriberto.pdf' '12 Implementacion de monitores/'
+          cp '13 Monitores parte II/build/Actividad13_Hernandez_Andrea_Espino_Heriberto.pdf' '13 Monitores parte II/'
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -f '11 Problema de los filosofos comensales/Actividad11_Hernandez_Andrea_Espino_Heriberto.pdf'
           git add -f '12 Implementacion de monitores/Actividad12_Hernandez_Andrea_Espino_Heriberto.pdf'
+          git add -f '13 Monitores parte II/Actividad13_Hernandez_Andrea_Espino_Heriberto.pdf'
+          git add -f '13 Monitores parte II/build/'
           git add -f '11 Problema de los filosofos comensales/build/'
           git add -f '12 Implementacion de monitores/build/'
           if ! git diff --cached --quiet; then
