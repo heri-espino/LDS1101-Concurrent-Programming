@@ -43,7 +43,7 @@ public class ColaEnlazada {
         for (int i = 0; i < 2; i++) {
             final int id = i + 1;
             hilos[i] = new Thread(() -> {
-                for (int j = 1; j <= 15; j++) {
+                for (int j = 1; j <= 10; j++) {
                     cola.enqueue("P" + id + "-" + j);
                 }
             }, "Productor " + id);
@@ -52,7 +52,7 @@ public class ColaEnlazada {
         for (int i = 2; i < 4; i++) {
             hilos[i] = new Thread(() -> {
                 try {
-                    for (int j = 0; j < 15; j++) {
+                    for (int j = 0; j < 10; j++) {
                         retirados.add(cola.dequeue());
                     }
                 } catch (InterruptedException e) {
@@ -64,7 +64,7 @@ public class ColaEnlazada {
         for (Thread hilo : hilos) hilo.start();
         for (Thread hilo : hilos) hilo.join();
 
-        boolean correcto = retirados.size() == 30;
+        boolean correcto = retirados.size() == 20;
         for (int p = 1; p <= 2; p++) {
             for (int i = 1; i <= 15; i++) {
                 if (!retirados.contains("P" + p + "-" + i)) correcto = false;

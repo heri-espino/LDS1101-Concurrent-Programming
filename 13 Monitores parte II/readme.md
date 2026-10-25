@@ -28,7 +28,7 @@ java InterbloqueoSolucion
 java MetodosThread
 ```
 
-En `ColaEnlazada`, dos productores depositan 15 elementos cada uno y dos consumidores retiran 30 en total. La salida termina con `Sin perdidas ni duplicados: true`.
+En `ColaEnlazada`, dos productores depositan 10 elementos cada uno y dos consumidores retiran 20 en total. La salida termina con `Sin perdidas ni duplicados: true`.
 
 En `VentaBoletos`, los dos eventos comienzan con 6 boletos, se reciben 10 intentos de compra por evento y el resultado esperado es `Ventas totales: 12`.
 

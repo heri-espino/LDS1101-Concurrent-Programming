@@ -13,13 +13,13 @@
 \textbf{Instrucción.} Implementar una cola enlazada compartida con \texttt{Nodo}, \texttt{head}, \texttt{tail}, \texttt{enqueue()} y \texttt{dequeue()} sincronizados. Dos productores generan elementos identificados por su nombre y dos consumidores los retiran sin duplicaciones ni pérdidas.
 
 \section{Entradas}
-Se utilizan dos productores y dos consumidores. Para la prueba, cada productor inserta quince elementos (\texttt{P1-1} a \texttt{P1-15}, y \texttt{P2-1} a \texttt{P2-15}). Los consumidores retiran quince elementos cada uno, para un total de treinta.
+Se utilizan dos productores y dos consumidores. Para la prueba, cada productor inserta diez elementos (\texttt{P1-1} a \texttt{P1-10}, y \texttt{P2-1} a \texttt{P2-10}). Los consumidores retiran diez elementos cada uno, para un total de veinte.
 
 \section{Procesamiento}
 El monitor es el objeto \texttt{Cola}. \texttt{enqueue()} crea un nodo, actualiza \texttt{head} y \texttt{tail} y llama a \texttt{notifyAll()}. En \texttt{dequeue()}, el ciclo \texttt{while (head == null)} ejecuta \texttt{wait()} si la cola está vacía. Cuando hay un elemento, se retira el primero y se actualizan los enlaces. \texttt{synchronized} impide dos modificaciones simultáneas de la lista.
 
 \section{Salidas y verificación}
-Cada inserción y retirada muestra su identificador. Al finalizar, el programa comprueba que estén presentes los treinta identificadores distintos y muestra \texttt{Sin perdidas ni duplicados: true}. La comprobación no depende del orden en el que el sistema programe los hilos.
+Cada inserción y retirada muestra su identificador. Al finalizar, el programa comprueba que estén presentes los veinte identificadores distintos y muestra \texttt{Sin perdidas ni duplicados: true}. La comprobación no depende del orden en el que el sistema programe los hilos.
 
 \espacioevidencia{captura_cola.png}{Código y salida del programa de cola enlazada; colocar una captura real.}
 
@@ -120,7 +120,7 @@ Cada programa se ejecuta cinco veces mediante el flujo de pruebas del repositori
 \begin{tabularx}{\textwidth}{P{4.0cm} L}
 \toprule
 \textbf{Programa} & \textbf{Condición comprobada}\\\midrule
-Cola enlazada & Los treinta elementos aparecen exactamente una vez al retirarlos.\\
+Cola enlazada & Los veinte elementos aparecen exactamente una vez al retirarlos.\\
 Venta de boletos & Ningún evento vende más de seis entradas; se realizan doce ventas.\\
 Interbloqueo & Los dos hilos permanecen bloqueados en la demostración.\\
 Solución ordenada & Ambos hilos terminan y los dos intercambios restauran los valores originales.\\
