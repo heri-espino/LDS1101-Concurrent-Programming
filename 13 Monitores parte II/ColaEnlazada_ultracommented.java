@@ -72,7 +72,7 @@ public class ColaEnlazada_ultracommented {
 
         boolean correcto = retirados.size() == 20;
         for (int p = 1; p <= 2; p++) {
-            for (int i = 1; i <= 15; i++) {
+            for (int i = 1; i <= 10; i++) {
                 if (!retirados.contains("P" + p + "-" + i)) correcto = false;
             }
         }
