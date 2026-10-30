@@ -16,6 +16,6 @@
 \contentsline {section}{\numberline {4.3}Comparación}{8}{section.4.3}%
 \contentsline {chapter}{\numberline {5}Métodos adicionales de \texttt {Thread}}{9}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Entradas y procesamiento}{9}{section.5.1}%
-\contentsline {chapter}{\numberline {6}Pruebas y conclusión}{10}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Verificación}{10}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Conclusión}{10}{section.6.2}%
+\contentsline {chapter}{\numberline {6}Pruebas y conclusión}{11}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Verificación}{11}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Conclusión}{11}{section.6.2}%

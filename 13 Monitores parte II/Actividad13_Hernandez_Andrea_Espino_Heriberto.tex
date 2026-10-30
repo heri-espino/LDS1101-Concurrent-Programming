@@ -21,7 +21,7 @@ El monitor es el objeto \texttt{Cola}. \texttt{enqueue()} crea un nodo, actualiz
 \section{Salidas y verificación}
 Cada inserción y retirada muestra su identificador. Al finalizar, el programa comprueba que estén presentes los veinte identificadores distintos y muestra \texttt{Sin perdidas ni duplicados: true}. La comprobación no depende del orden en el que el sistema programe los hilos.
 
-\espacioevidencia{captura_cola.png}{Código y salida del programa de cola enlazada; colocar una captura real.}
+\espacioevidencia{figures/colaenlazada.png}{Código y salida del programa de cola enlazada.}
 
 \chapter{Formas de utilizar \texttt{synchronized}}
 \textbf{Instrucción.} Comparar un método de instancia sincronizado, un bloque \texttt{synchronized(this)} y un método \texttt{static synchronized} para reservar boletos de dos eventos.
@@ -43,7 +43,7 @@ Método \texttt{static synchronized} & El monitor \texttt{Evento.class} protege 
 \section{Salidas}
 La cantidad de boletos nunca se vuelve negativa y la suma de ventas corresponde a ambos eventos. En esta prueba se esperan cero boletos restantes por evento y doce ventas totales.
 
-\espacioevidencia{captura_boletos.png}{Código y salida de las tres formas de sincronización.}
+\espacioevidencia{figures/ventaboletos.png}{Código y salida de las tres formas de sincronización.}
 
 \chapter{Interbloqueo entre monitores}
 \textbf{Instrucción.} Crear dos objetos \texttt{Cell}, \texttt{p} y \texttt{q}, y ejecutar simultáneamente \texttt{p.swap(q)} y \texttt{q.swap(p)}. Introducir una pausa al obtener el primer monitor y explicar el interbloqueo.
@@ -67,10 +67,10 @@ Paso & Hilo & Operación & Monitor que posee & Monitor que espera\\\midrule
 \section{Resultado}
 Ningún hilo puede adquirir su segundo monitor, porque el otro lo conserva. El programa usa hilos \textit{daemon} y espera un tiempo limitado para detectar la situación sin dejar abierta la demostración; \textbf{esto no resuelve el interbloqueo}.
 
-\espacioevidencia{captura_interbloqueo.png}{Código y evidencia real del interbloqueo.}
+\espacioevidencia{figures/interbloque.png}{Código y evidencia real del interbloqueo.}
 
 \chapter{Solución del interbloqueo}
-\textbf{Instrucción.} Corregir la adquisición de monitores usando \texttt{System.identityHashCode()} y ejecutar de nuevo los dos intercambios.
+\textbf{Instrucción.} Corregir la adquisición de monitores usando \texttt{System.\allowbreak identityHashCode()} y ejecutar de nuevo los dos intercambios.
 
 \section{Modificación}
 En lugar de adquirir primero el monitor propio, los dos hilos calculan el código de identidad de \texttt{p} y \texttt{q} y toman ambos monitores \textbf{en el mismo orden}: primero el de código menor y después el de código mayor. Una vez obtenidos, el objeto de código menor ejecuta \texttt{doSwap()}.
@@ -92,7 +92,7 @@ Fin de los dos hilos & Pueden quedar bloqueados & Terminan normalmente\\\bottomr
 \end{tabularx}
 \end{table}
 
-\espacioevidencia{captura_solucion.png}{Código y salida real del intercambio sin interbloqueo.}
+\espacioevidencia{figures/interbloqueosolucion.png}{Código y salida real del intercambio sin interbloqueo.}
 
 \chapter{Métodos adicionales de \texttt{Thread}}
 \textbf{Instrucción.} Mostrar \texttt{interrupt()}, \texttt{yield()} y \texttt{holdsLock()} mediante ejemplos cortos.
@@ -105,11 +105,11 @@ Fin de los dos hilos & Pueden quedar bloqueados & Terminan normalmente\\\bottomr
 \textbf{Método} & \textbf{Descripción y observación}\\\midrule
 \texttt{interrupt()} & Interrumpe un hilo que está en \texttt{sleep()}; aparece el mensaje de interrupción al capturar \texttt{InterruptedException}.\\
 \texttt{Thread.yield()} & Sugiere ceder el procesador. No obliga al planificador ni garantiza un orden específico.\\
-\texttt{Thread.holdsLock(objeto)} & Devuelve \texttt{false} fuera de \texttt{synchronized(objeto)} y \texttt{true} dentro, en el hilo actual.\\\bottomrule
+\texttt{Thread.\allowbreak holdsLock(\allowbreak objeto)} & Devuelve \texttt{false} fuera de \texttt{synchronized(objeto)} y \texttt{true} dentro, en el hilo actual.\\\bottomrule
 \end{tabularx}
 \end{table}
 
-\espacioevidencia{captura_thread.png}{Código y salida de los métodos adicionales de Thread.}
+\espacioevidencia{figures/metodosthread.png}{Código y salida de los métodos adicionales de Thread.}
 
 \chapter{Pruebas y conclusión}
 \section{Verificación}

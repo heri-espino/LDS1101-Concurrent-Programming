@@ -1,6 +1,6 @@
 \babel@toc {spanish}{}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {1.1}{\ignorespaces Código y salida del programa de cola enlazada; colocar una captura real.}}{2}{figure.caption.4}%
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Código y salida del programa de cola enlazada.}}{2}{figure.caption.4}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {2.1}{\ignorespaces Código y salida de las tres formas de sincronización.}}{4}{figure.caption.6}%
 \addvspace {10\p@ }
@@ -8,5 +8,5 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Código y salida real del intercambio sin interbloqueo.}}{8}{figure.caption.10}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Código y salida de los métodos adicionales de Thread.}}{9}{figure.caption.12}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Código y salida de los métodos adicionales de Thread.}}{10}{figure.caption.12}%
 \addvspace {10\p@ }
