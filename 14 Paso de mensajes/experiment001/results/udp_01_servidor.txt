@@ -1,4 +1,4 @@
 Servidor UDP en puerto 5000
-De 127.0.0.1:38192 -> Hola servidor
-De 127.0.0.1:38192 -> SALIR
+De 127.0.0.1:47073 -> Hola servidor
+De 127.0.0.1:47073 -> SALIR
 Servidor UDP cerrado

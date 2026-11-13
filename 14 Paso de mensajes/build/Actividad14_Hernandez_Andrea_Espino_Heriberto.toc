@@ -1,0 +1,19 @@
+\babel@toc {spanish}{}\relax 
+\contentsline {chapter}{\numberline {1}Análisis del paso de mensajes}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Marco del problema}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Análisis de UDP}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Análisis de TCP}{3}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Servidor y cliente UDP}{4}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Entradas y procesamiento}{4}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Salidas, control y conceptos}{4}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Diagrama de intercambio UDP}{5}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Evidencia de código y terminales}{5}{section.2.4}%
+\contentsline {chapter}{\numberline {3}Directorio de servicios TCP}{7}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Entradas y procesamiento}{7}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Ejemplo esperado y salida observada}{7}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Diagrama de intercambio TCP}{8}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Evidencia de código y terminales}{8}{section.3.4}%
+\contentsline {chapter}{\numberline {4}Pruebas y comparación}{10}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Seis ejecuciones reproducibles}{10}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Preguntas de análisis}{10}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Conclusión}{11}{section.4.3}%
