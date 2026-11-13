@@ -1,0 +1,7 @@
+Prueba,Protocolo,Mensaje enviado,Respuesta,Resultado
+1,UDP,Hola servidor,Mensaje recibido: Hola servidor,Correcto
+2,UDP,Prueba de mensajes,Mensaje recibido: Prueba de mensajes,Correcto
+3,UDP,UDP funciona,Mensaje recibido: UDP funciona,Correcto
+4,TCP,BUSCAR calculadora,Servicio encontrado en el puerto 7000,Correcto
+5,TCP,BUSCAR inventario,Servicio encontrado en el puerto 7001,Correcto
+6,TCP,BUSCAR desconocido,Servicio no encontrado,Correcto

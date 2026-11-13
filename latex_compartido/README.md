@@ -30,3 +30,6 @@ Necesitas MacTeX o TeX Live con `latexmk` y los paquetes usados en `estilo.sty` 
 Al subir cambios de cualquiera de los dos reportes `.tex` a `main`, **GitHub Actions** recompila ambos PDF y versiona los resultados, incluidos los auxiliares. Las capturas de ejecuciones deben ser reales; el documento muestra un espacio reservado cuando no se han agregado.
 
 Los reportes más antiguos conservan sus plantillas originales para no modificar entregas anteriores.
+
+## Actividad 14
+La actividad 14 también utiliza `estilo.sty` y el mismo `logo.png`. Su `.tex` y PDF final están en `14 Paso de mensajes/` y sus auxiliares en `build/`. El flujo CI verifica las sesiones UDP/TCP, compila el informe y versiona el resultado.

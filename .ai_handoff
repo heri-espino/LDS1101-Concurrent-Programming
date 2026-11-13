@@ -134,3 +134,6 @@ Incluye los programas Java de `join()` y `waitFor()`, sus versiones
 ultracomentadas, el reporte con espacios para las fotografias del estudiante y
 el PDF final. Este resultado puede usarse como referencia de formato para las
 siguientes actividades.
+
+## actualizacion de estructura (actividades 11 a 14)
+Las actividades 11-14 usan la estructura plana solicitada por el usuario: .java, *_ultracommented.java, .tex, .pdf, build/, figures/ y readme.md dentro de la misma carpeta. latex_compartido/ contiene el estilo UDLAP y su logo original. Esta convencion actual sustituye al ejemplo historico anidado. La actividad 14 se llama exactamente '14 Paso de mensajes' y contiene cuatro programas UDP/TCP, pruebas experiment001, diagramas, preguntas respondidas y capturas pendientes autenticas. Las pruebas automaticas no son capturas del estudiante.

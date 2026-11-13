@@ -1,0 +1,151 @@
+\documentclass[12pt,oneside]{book}
+\usepackage{../latex_compartido/estilo}
+\renewcommand{\fechaEntregaActividad}{Por definir}
+\begin{document}
+\portadaActividad{14}{Paso de mensajes con UDP y TCP}
+\frontmatter
+\tableofcontents
+\listoffigures
+\listoftables
+\mainmatter
+
+\chapter{Análisis del paso de mensajes}
+\textbf{Instrucción.} Identificar emisor, receptor, mensaje, canal, operaciones, direccionamiento, bloqueo y tipo de comunicación de cada implementación.
+
+\section{Marco del problema}
+Los programas de esta actividad son \textbf{procesos independientes}: no utilizan variables compartidas para intercambiar información. Se comunican enviando bytes a través de \textit{sockets} de red sobre la interfaz local (\texttt{localhost}). Un mensaje tiene un emisor, un receptor y un canal que lo transporta. El cliente solicita una operación y el servidor envía una respuesta.
+
+\section{Análisis de UDP}
+\begin{table}[H]\centering\small
+\caption{Elementos de la implementación UDP.}
+\begin{tabularx}{\textwidth}{P{3.4cm} L}
+\toprule
+\textbf{Elemento} & \textbf{Identificación}\\\midrule
+Emisor y receptor & El cliente envía la solicitud; el servidor la recibe y después responde al cliente.\\
+Mensaje & Texto UTF-8; la respuesta es \texttt{Mensaje recibido: [mensaje]}.\\
+Canal & Datagramas UDP mediante \texttt{DatagramSocket}, puerto 5000.\\
+Envío y recepción & \texttt{send()} y \texttt{receive()} con \texttt{DatagramPacket}.\\
+Direccionamiento & Directo: \texttt{localhost:5000}. La respuesta se envía a la IP y puerto de origen del datagrama recibido.\\
+Bloqueo & \texttt{receive()} espera un datagrama; la lectura del teclado espera entrada. \texttt{send()} no espera una confirmación de aplicación.\\
+Comunicación & UDP no establece conexión ni garantiza entrega; \textit{nuestro diálogo} es síncrono, pues cada envío del cliente va seguido de una espera de respuesta.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Análisis de TCP}
+\begin{table}[H]\centering\small
+\caption{Elementos de la implementación TCP.}
+\begin{tabularx}{\textwidth}{P{3.4cm} L}
+\toprule
+\textbf{Elemento} & \textbf{Identificación}\\\midrule
+Emisor y receptor & El cliente envía órdenes; el servidor responde con el resultado de cada orden.\\
+Mensaje & Líneas de texto con \texttt{REGISTRAR}, \texttt{BUSCAR} o \texttt{SALIR}.\\
+Canal & Conexión TCP creada con \texttt{Socket} y \texttt{ServerSocket}, puerto 6000.\\
+Envío y recepción & \texttt{println()} escribe una línea; \texttt{readLine()} lee la siguiente.\\
+Direccionamiento & Directo: \texttt{localhost:6000}; el sistema asigna un puerto temporal al cliente.\\
+Bloqueo & \texttt{accept()} espera conexiones; \texttt{readLine()} espera una línea o cierre; conectar puede esperar o fallar.\\
+Comunicación & Solicitud y respuesta síncronas al nivel de aplicación: el cliente espera el resultado antes de enviar otra orden. TCP ofrece un flujo fiable y ordenado de bytes.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\chapter{Servidor y cliente UDP}
+\textbf{Instrucción.} Crear un servidor en el puerto 5000 que reciba datagramas, identifique dirección y puerto de origen, confirme su recepción y continúe hasta recibir \texttt{SALIR}; el cliente lee mensajes del teclado, los envía a \texttt{localhost} y muestra las respuestas.
+
+\section{Entradas y procesamiento}
+El usuario introduce una línea de texto, por ejemplo \texttt{Hola servidor}. El \texttt{ClienteUDP} la convierte a UTF-8 y crea un \texttt{DatagramPacket} con destino al puerto 5000. \texttt{ServidorUDP} permanece en \texttt{receive()} hasta obtener un datagrama; convierte sus bytes de nuevo a texto, muestra la dirección IP y el puerto del cliente y responde \texttt{Mensaje recibido: Hola servidor}. El cliente ejecuta también \texttt{receive()} para esperar dicha respuesta. Al enviar \texttt{SALIR}, el servidor confirma el mensaje y termina.
+
+\section{Salidas, control y conceptos}
+Las estructuras de control principales son \texttt{while}, \texttt{if} y el cierre automático de sockets mediante \texttt{try-with-resources}. El cliente tiene un tiempo máximo de espera de tres segundos por respuesta para evitar una espera ilimitada cuando no existe servidor. Esta limitación no convierte a UDP en un protocolo fiable.
+
+\section{Diagrama de intercambio UDP}
+\begin{center}
+\begin{tabular}{r c l}
+\textbf{Cliente UDP} & & \textbf{Servidor UDP}\\[.4em]
+\texttt{send(datagrama)} & $\longrightarrow$ & \texttt{receive()}\\[.4em]
+\texttt{receive()} & $\longleftarrow$ & \texttt{send(confirmación)}\\[.4em]
+\texttt{SALIR} & $\longrightarrow$ & Recibe y responde\\[.4em]
+Finaliza & $\longleftarrow$ & Confirma y finaliza
+\end{tabular}
+\end{center}
+
+\section{Evidencia de código y terminales}
+\espacioevidencia{figures/udp_codigo.png}{Código Java del cliente y servidor UDP; captura real pendiente.}
+\espacioevidencia{figures/udp_servidor.png}{Terminal del servidor UDP; captura real pendiente.}
+\espacioevidencia{figures/udp_cliente.png}{Terminal del cliente UDP; captura real pendiente.}
+
+\chapter{Directorio de servicios TCP}
+\textbf{Instrucción.} Implementar un servidor TCP con \texttt{ServerSocket(6000)} y un directorio \texttt{HashMap} que admita \texttt{REGISTRAR nombre puerto}, \texttt{BUSCAR nombre} y \texttt{SALIR}; construir un cliente interactivo para enviar las solicitudes y mostrar las respuestas.
+
+\section{Entradas y procesamiento}
+El servidor abre el puerto 6000 y utiliza \texttt{accept()} para aceptar un cliente. Conserva los nombres y puertos de servicios en un \texttt{HashMap<String,Integer>}. Por cada línea del cliente, separa sus palabras y ejecuta la acción indicada. Se valida que los puertos registrados sean números entre 1 y 65535. Una petición de búsqueda de un nombre ausente devuelve \texttt{Servicio no encontrado}. La orden \texttt{SALIR} devuelve \texttt{Conexion cerrada}, cierra la conexión y termina el servidor.
+
+\section{Ejemplo esperado y salida observada}
+\begin{table}[H]\centering\small
+\caption{Solicitudes del directorio y respuestas.}
+\begin{tabularx}{\textwidth}{L L}
+\toprule
+\textbf{Solicitud} & \textbf{Respuesta}\\\midrule
+\texttt{REGISTRAR calculadora 7000} & Servicio registrado\\
+\texttt{BUSCAR calculadora} & Servicio encontrado en el puerto 7000\\
+\texttt{BUSCAR inventario} & Servicio no encontrado\\
+\texttt{SALIR} & Conexion cerrada\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+El programa utiliza una estructura \texttt{HashMap}, ciclos \texttt{while}, decisiones \texttt{if/else}, lectura por líneas y un \texttt{try-with-resources}. Procesa una conexión a la vez, suficiente para el ejercicio. Los servicios se conservan en memoria mientras el servidor siga ejecutándose.
+
+\section{Diagrama de intercambio TCP}
+\begin{center}
+\begin{tabular}{r c l}
+\textbf{Cliente TCP} & & \textbf{Servidor TCP}\\[.4em]
+\texttt{new Socket(...)} & $\longrightarrow$ & \texttt{accept()}\\[.4em]
+\texttt{REGISTRAR ...} & $\longrightarrow$ & Guarda servicio\\[.4em]
+Muestra respuesta & $\longleftarrow$ & \texttt{Servicio registrado}\\[.4em]
+\texttt{BUSCAR ...} & $\longrightarrow$ & Consulta directorio\\[.4em]
+Muestra respuesta & $\longleftarrow$ & Resultado de la búsqueda\\[.4em]
+\texttt{SALIR} & $\longrightarrow$ & Confirma y cierra
+\end{tabular}
+\end{center}
+
+\section{Evidencia de código y terminales}
+\espacioevidencia{figures/tcp_codigo.png}{Código Java del cliente y servidor TCP; captura real pendiente.}
+\espacioevidencia{figures/tcp_servidor.png}{Terminal del servidor TCP; captura real pendiente.}
+\espacioevidencia{figures/tcp_cliente.png}{Terminal del cliente TCP; captura real pendiente.}
+
+\chapter{Pruebas y comparación}
+\section{Seis ejecuciones reproducibles}
+Se ejecutaron \textbf{tres sesiones completas de cada implementación}, iniciando un proceso servidor y otro cliente en cada prueba. Los resultados siguientes se obtuvieron con el script \texttt{experiment001/run\_tests.py}, que almacena las salidas reales de ambas terminales en archivos de texto y verifica automáticamente las respuestas. La tabla no sustituye las capturas que deben tomarse en terminales separadas.
+
+\begin{table}[H]\centering\scriptsize
+\caption{Resultados de las seis sesiones cliente-servidor.}
+\begin{tabularx}{\textwidth}{c c L L c}
+\toprule
+\textbf{Pr.} & \textbf{Proto.} & \textbf{Mensaje enviado} & \textbf{Respuesta} & \textbf{Resultado}\\\\midrule
+1 & UDP & Hola servidor & Mensaje recibido: Hola servidor & Correcto\\
+2 & UDP & Prueba de mensajes & Mensaje recibido: Prueba de mensajes & Correcto\\
+3 & UDP & UDP funciona & Mensaje recibido: UDP funciona & Correcto\\
+4 & TCP & BUSCAR calculadora & Servicio encontrado en el puerto 7000 & Correcto\\
+5 & TCP & BUSCAR inventario & Servicio encontrado en el puerto 7001 & Correcto\\
+6 & TCP & BUSCAR desconocido & Servicio no encontrado & Correcto\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+En cada sesión se envió también \texttt{SALIR} para cerrar el servidor. En las sesiones TCP de búsqueda exitosa, primero se registró el servicio correspondiente.
+
+\section{Preguntas de análisis}
+\textbf{1. ¿Qué métodos bloquean mientras esperan datos o conexiones?} En UDP, \texttt{DatagramSocket.receive()}. En TCP, \texttt{ServerSocket.accept()} y \texttt{BufferedReader.readLine()}; la apertura de la conexión puede bloquear durante el establecimiento. Leer del teclado también puede esperar entrada. Los métodos de envío no esperan una respuesta de la aplicación por sí mismos.
+
+\textbf{2. ¿Por qué UDP no necesita \texttt{accept()}?} Porque no crea una conexión previa entre cliente y servidor. Cada datagrama contiene los datos necesarios para que el receptor identifique la dirección y el puerto de origen. En cambio, TCP establece una conexión y el servidor la recibe con \texttt{accept()}.
+
+\textbf{3. ¿Qué diferencias existen entre \texttt{DatagramSocket}, \texttt{Socket} y \texttt{ServerSocket}?} \texttt{DatagramSocket} envía y recibe datagramas UDP independientes; \texttt{Socket} representa un extremo de una conexión TCP; y \texttt{ServerSocket} escucha un puerto y acepta nuevas conexiones TCP. TCP conserva el orden de los bytes recibidos y requiere delimitar los mensajes, aquí con saltos de línea.
+
+\textbf{4. ¿Qué protocolo usarían para el directorio y por qué?} TCP, porque permite intercambiar varias órdenes por una conexión y proporciona entrega fiable y ordenada. Esto simplifica la implementación de un directorio que necesita recibir y contestar solicitudes correctamente. UDP requiere implementar controles adicionales si se desea garantizar entrega y reintentos.
+
+\textbf{5. ¿Qué sucede cuando se inicia el cliente antes que el servidor?} En TCP, el intento de conexión suele fallar con \texttt{ConnectException: Connection refused} si no hay un proceso escuchando. En UDP, el envío puede finalizar sin error porque no hay establecimiento de conexión; el cliente espera una confirmación que no llegará y, en esta implementación, termina con \texttt{SocketTimeoutException} tras tres segundos.
+
+\section{Conclusión}
+El paso de mensajes permite colaborar a procesos independientes sin utilizar memoria compartida. UDP utiliza datagramas y no establece conexiones; TCP utiliza un flujo de bytes asociado a una conexión. En ambos ejercicios se programó un intercambio de solicitud y respuesta, con operaciones bloqueantes de recepción. Las tres pruebas UDP y las tres pruebas TCP completaron correctamente sus solicitudes. Los registros se conservan para reproducirlas; antes de entregar deberán añadirse capturas auténticas de ambas terminales.
+\end{document}

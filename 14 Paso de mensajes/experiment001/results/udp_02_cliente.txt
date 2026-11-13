@@ -1,0 +1,2 @@
+Mensaje (SALIR para terminar): Mensaje recibido: Prueba de mensajes
+Mensaje (SALIR para terminar): Mensaje recibido: SALIR

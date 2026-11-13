@@ -1,0 +1,4 @@
+Servidor UDP en puerto 5000
+De 127.0.0.1:58121 -> UDP funciona
+De 127.0.0.1:58121 -> SALIR
+Servidor UDP cerrado

@@ -23,3 +23,10 @@ nsnake
 fastfetch
 
 ghostty
+
+## Actividad 14: paso de mensajes
+- [Instrucciones y Java UDP/TCP](14%20Paso%20de%20mensajes/readme.md)
+- [Transcripción del enunciado](14%20Paso%20de%20mensajes/enunciado.md)
+- [Experimento y pruebas](14%20Paso%20de%20mensajes/experiment001/README.md)
+
+Desde la carpeta `14 Paso de mensajes` usa `javac *.java`, `python3 experiment001/run_tests.py` y `latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build Actividad14_Hernandez_Andrea_Espino_Heriberto.tex`. El reporte reutiliza el formato UDLAP compartido.

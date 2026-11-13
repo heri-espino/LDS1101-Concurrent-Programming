@@ -1,0 +1,2 @@
+Mensaje (SALIR para terminar): Mensaje recibido: UDP funciona
+Mensaje (SALIR para terminar): Mensaje recibido: SALIR

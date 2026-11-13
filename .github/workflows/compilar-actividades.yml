@@ -8,6 +8,9 @@ on:
       - '12 Implementacion de monitores/*.tex'
       - '13 Monitores parte II/*.tex'
       - '13 Monitores parte II/*.java'
+      - '14 Paso de mensajes/*.java'
+      - '14 Paso de mensajes/*.tex'
+      - '14 Paso de mensajes/experiment001/run_tests.py'
       - 'latex_compartido/**'
       - '.github/workflows/compilar-actividades.yml'
   workflow_dispatch:
@@ -50,6 +53,12 @@ jobs:
             echo "Ejecucion $i: las cinco pruebas pasaron"
           done
 
+      - name: Probar UDP y TCP de la Actividad 14
+        shell: bash
+        run: |
+          cd '14 Paso de mensajes'
+          python3 experiment001/run_tests.py
+
       - name: Compilar Actividad 11
         uses: xu-cheng/latex-action@v4
         with:
@@ -71,21 +80,32 @@ jobs:
           root_file: Actividad13_Hernandez_Andrea_Espino_Heriberto.tex
           args: -pdf -interaction=nonstopmode -halt-on-error -outdir=build
 
+      - name: Compilar Actividad 14
+        uses: xu-cheng/latex-action@v4
+        with:
+          working_directory: 14 Paso de mensajes
+          root_file: Actividad14_Hernandez_Andrea_Espino_Heriberto.tex
+          args: -pdf -interaction=nonstopmode -halt-on-error -outdir=build
+
       - name: Guardar PDF y archivos build con Git
         shell: bash
         run: |
           cp '11 Problema de los filosofos comensales/build/Actividad11_Hernandez_Andrea_Espino_Heriberto.pdf' '11 Problema de los filosofos comensales/'
           cp '12 Implementacion de monitores/build/Actividad12_Hernandez_Andrea_Espino_Heriberto.pdf' '12 Implementacion de monitores/'
           cp '13 Monitores parte II/build/Actividad13_Hernandez_Andrea_Espino_Heriberto.pdf' '13 Monitores parte II/'
+          cp '14 Paso de mensajes/build/Actividad14_Hernandez_Andrea_Espino_Heriberto.pdf' '14 Paso de mensajes/'
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -f '11 Problema de los filosofos comensales/Actividad11_Hernandez_Andrea_Espino_Heriberto.pdf'
           git add -f '12 Implementacion de monitores/Actividad12_Hernandez_Andrea_Espino_Heriberto.pdf'
           git add -f '13 Monitores parte II/Actividad13_Hernandez_Andrea_Espino_Heriberto.pdf'
+          git add -f '14 Paso de mensajes/Actividad14_Hernandez_Andrea_Espino_Heriberto.pdf'
           git add -f '13 Monitores parte II/build/'
+          git add -f '14 Paso de mensajes/build/'
+          git add -f '14 Paso de mensajes/experiment001/results/'
           git add -f '11 Problema de los filosofos comensales/build/'
           git add -f '12 Implementacion de monitores/build/'
           if ! git diff --cached --quiet; then
-            git commit -m 'build: versionar reportes 11 y 12 y sus auxiliares'
+            git commit -m 'build: versionar reportes 11 a 14 y sus auxiliares'
             git push
           fi

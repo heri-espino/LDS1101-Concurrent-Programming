@@ -1,0 +1,7 @@
+Servidor TCP en puerto 6000
+Cliente conectado: /127.0.0.1:40630
+REGISTRAR calculadora 7000 -> Servicio registrado
+BUSCAR calculadora -> Servicio encontrado en el puerto 7000
+BUSCAR inventario -> Servicio no encontrado
+SALIR -> Conexion cerrada
+Servidor TCP cerrado

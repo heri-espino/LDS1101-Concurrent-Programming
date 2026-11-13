@@ -1,0 +1,4 @@
+Escribe REGISTRAR nombre puerto, BUSCAR nombre o SALIR
+Servicio registrado
+Servicio encontrado en el puerto 7001
+Conexion cerrada

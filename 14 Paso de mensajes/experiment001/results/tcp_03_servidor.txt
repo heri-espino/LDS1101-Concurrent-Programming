@@ -1,0 +1,7 @@
+Servidor TCP en puerto 6000
+Cliente conectado: /127.0.0.1:40648
+BUSCAR desconocido -> Servicio no encontrado
+REGISTRAR agenda 7010 -> Servicio registrado
+BUSCAR agenda -> Servicio encontrado en el puerto 7010
+SALIR -> Conexion cerrada
+Servidor TCP cerrado

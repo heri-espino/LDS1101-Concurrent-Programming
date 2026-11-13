@@ -1,0 +1,4 @@
+Servidor UDP en puerto 5000
+De 127.0.0.1:44592 -> Prueba de mensajes
+De 127.0.0.1:44592 -> SALIR
+Servidor UDP cerrado
